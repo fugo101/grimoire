@@ -78,26 +78,11 @@ SQLite data is persisted at `/app/data/data.db` via volume mount.
 
 This project uses GitHub Flow. Development happens on feature branches, merged to `main` via PRs.
 
-```bash
-# 1. Create a feature branch
-git checkout -b feature/my-change
+1. Create a feature branch and open a PR to `main` (add labels: `enhancement`, `bug`, `documentation`, `chore`)
+2. Merge PR(s) to `main`
+3. Go to **Actions** → **Release** → **Run workflow** → choose `patch` / `minor` / `major`
 
-# 2. Open a PR to main (add labels: enhancement, bug, documentation)
-# 3. Merge PR(s)
-
-# 4. When ready to release, bump version
-npm version patch   # 1.0.0 → 1.0.1
-npm version minor   # 1.0.0 → 1.1.0
-npm version major   # 1.0.0 → 2.0.0
-
-# 5. Push commit + tag
-git push --follow-tags
-```
-
-Pushing a `v*` tag triggers GitHub Actions to:
-
-- Build and publish Docker image to `ghcr.io/fudio101/grimoire`
-- Create a GitHub Release with auto-generated notes from merged PRs
+The workflow automatically bumps `package.json` version, creates a git tag, builds and pushes Docker image to GHCR, and creates a GitHub Release with auto-generated notes from merged PRs.
 
 ## Project Structure
 
