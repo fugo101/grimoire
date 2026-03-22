@@ -66,6 +66,6 @@ jobs:
           
           PR_NUMBER=$(echo $PR_URL | sed 's|.*/||')
           
-          gh pr merge $PR_NUMBER --squash --auto --delete-branch
+          gh pr merge $PR_NUMBER --squash --delete-branch
           
           echo "::notice::PR #$PR_NUMBER created and set to auto-merge"
