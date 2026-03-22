@@ -1,23 +1,16 @@
-name: Release
+name: Release Publish
 
 on:
-  workflow_dispatch:
-    inputs:
-      bump:
-        description: "Version bump type"
-        required: true
-        type: choice
-        options:
-          - patch
-          - minor
-          - major
+  pull_request:
+    types: [closed]
 
 env:
   REGISTRY: ghcr.io
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  release:
+  publish:
+    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release')
     runs-on: [self-hosted, Linux, X64]
 
     permissions:
@@ -28,6 +21,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v5
         with:
+          ref: main
           ssh-key: ""
 
       - name: Setup Node.js
@@ -35,20 +29,20 @@ jobs:
         with:
           node-version: 24
 
-      - name: Configure git
+      - name: Get version from package.json
+        id: version
+        run: |
+          VERSION=$(node -p "require('./package.json').version")
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+          echo "tag=v$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Configure git and create tag
         run: |
           git config user.name "fudio101"
           git config user.email "thenguyen1024@gmail.com"
           git remote set-url origin git@github.com:fugo101/grimoire.git
-
-      - name: Bump version
-        id: version
-        run: |
-          npm version ${{ inputs.bump }}
-          echo "tag=$(git describe --tags --abbrev=0)" >> "$GITHUB_OUTPUT"
-
-      - name: Push commit and tag
-        run: git push --follow-tags
+          git tag ${{ steps.version.outputs.tag }}
+          git push origin ${{ steps.version.outputs.tag }}
 
       - name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v4
