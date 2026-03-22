@@ -10,7 +10,16 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
+  check:
+    runs-on: [self-hosted, Linux, X64]
+    steps:
+      - name: Debug
+        run: |
+          echo "Commit message: ${{ github.event.head_commit.message }}"
+          echo "Starts with check: ${{ startsWith(github.event.head_commit.message, 'chore: bump version to') }}"
+
   publish:
+    needs: check
     if: startsWith(github.event.head_commit.message, 'chore: bump version to')
     runs-on: [self-hosted, Linux, X64]
 
