@@ -83,11 +83,12 @@ This project uses GitHub Flow. Development happens on feature branches, merged t
 1. Go to **Actions** → **Release PR** → **Run workflow** → choose `patch` / `minor` / `major`
 2. Workflow automatically:
    - Creates a release branch with version bump
-   - Opens and auto-merges a PR to `main` (with `release` label)
-   - When PR is merged, triggers the publish workflow to:
-     - Create git tag
-     - Build and push Docker image to GHCR
-     - Create GitHub Release with auto-generated notes from merged PRs since last release
+   - Opens a PR to `main` (labeled `release`)
+   - Auto-approves and sets PR to auto-merge (squash)
+3. When PR is merged, the publish workflow automatically:
+   - Creates git tag
+   - Builds and pushes Docker image to GHCR
+   - Creates GitHub Release with auto-generated notes from merged PRs since last release
 
 The `main` branch history stays clean with proper squash-merged PRs.
 
