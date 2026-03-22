@@ -78,11 +78,18 @@ SQLite data is persisted at `/app/data/data.db` via volume mount.
 
 This project uses GitHub Flow. Development happens on feature branches, merged to `main` via PRs.
 
-1. Create a feature branch and open a PR to `main` (add labels: `enhancement`, `bug`, `documentation`, `chore`)
-2. Merge PR(s) to `main`
-3. Go to **Actions** → **Release** → **Run workflow** → choose `patch` / `minor` / `major`
+**To create a release:**
 
-The workflow automatically bumps `package.json` version, creates a git tag, builds and pushes Docker image to GHCR, and creates a GitHub Release with auto-generated notes from merged PRs.
+1. Go to **Actions** → **Release PR** → **Run workflow** → choose `patch` / `minor` / `major`
+2. Workflow automatically:
+   - Creates a release branch with version bump
+   - Opens and auto-merges a PR to `main` (with `release` label)
+   - When PR is merged, triggers the publish workflow to:
+     - Create git tag
+     - Build and push Docker image to GHCR
+     - Create GitHub Release with auto-generated notes from merged PRs since last release
+
+The `main` branch history stays clean with proper squash-merged PRs.
 
 ## Project Structure
 
