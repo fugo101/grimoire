@@ -1,10 +1,11 @@
 name: Release Publish
 
 on:
-  pull_request:
-    types: [closed]
+  push:
     branches:
       - main
+    paths:
+      - "package.json"
 
 env:
   REGISTRY: ghcr.io
@@ -12,7 +13,7 @@ env:
 
 jobs:
   publish:
-    if: github.event.pull_request.merged == true && contains(github.event.pull_request.labels.*.name, 'release')
+    if: startsWith(github.event.head_commit.message, 'chore: bump version to')
     runs-on: [self-hosted, Linux, X64]
 
     permissions:
