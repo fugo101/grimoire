@@ -14,7 +14,7 @@ on:
 
 jobs:
   create-release-pr:
-    runs-on: [self-hosted, Linux, X64]
+    runs-on: [ self-hosted, Linux, X64 ]
 
     permissions:
       contents: write
@@ -23,8 +23,6 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
-        with:
-          ssh-key: ""
 
       - name: Setup Node.js
         uses: actions/setup-node@v6
@@ -35,7 +33,7 @@ jobs:
         run: |
           git config user.name "fudio101"
           git config user.email "thenguyen1024@gmail.com"
-          git remote set-url origin git@github.com:fugo101/grimoire.git
+          git remote set-url origin git@github.com:${{ github.repository }}.git
 
       - name: Bump version
         id: version
@@ -55,6 +53,9 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
+          set -e
+          
+          echo "Creating PR for version bump..."
           PR_URL=$(gh pr create \
             --title "chore: bump version to ${{ steps.version.outputs.new_version }}" \
             --body "Automated version bump to v${{ steps.version.outputs.new_version }}" \
@@ -62,10 +63,16 @@ jobs:
             --head release/v${{ steps.version.outputs.new_version }} \
             --label release)
           
+          if [ -z "$PR_URL" ]; then
+            echo "::error::Failed to create PR"
+            exit 1
+          fi
+          
           echo "Created PR: $PR_URL"
           
           PR_NUMBER=$(echo $PR_URL | sed 's|.*/||')
           
+          echo "Merging PR #$PR_NUMBER..."
           gh pr merge $PR_NUMBER --squash --delete-branch
           
-          echo "::notice::PR #$PR_NUMBER created and set to auto-merge"
+          echo "::notice::PR #$PR_NUMBER created and merged successfully"
