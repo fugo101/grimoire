@@ -39,7 +39,7 @@ jobs:
         run: |
           git config user.name "fudio101"
           git config user.email "thenguyen1024@gmail.com"
-          git remote set-url origin git@github.com:fudio101/grimoire.git
+          git remote set-url origin git@github.com:fugo101/grimoire.git
 
       - name: Bump version
         id: version
