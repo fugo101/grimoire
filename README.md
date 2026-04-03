@@ -1,3 +1,5 @@
+[![CI](https://github.com/fugo101/grimoire/actions/workflows/ci.yml/badge.svg)](https://github.com/fugo101/grimoire/actions/workflows/ci.yml)
+
 # Grimoire
 
 A lightweight, self-hosted expense tracker. Vietnamese UI, VNĐ currency, SQLite storage.
