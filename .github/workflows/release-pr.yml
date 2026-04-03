@@ -14,7 +14,7 @@ on:
 
 jobs:
   create-release-pr:
-    runs-on: [ self-hosted, Linux, X64 ]
+    runs-on: [self-hosted, Linux, X64]
 
     permissions:
       contents: write
@@ -54,7 +54,7 @@ jobs:
           GH_TOKEN: ${{ secrets.PAT_TOKEN }}
         run: |
           set -e
-          
+
           echo "Creating PR for version bump..."
           PR_URL=$(gh pr create \
             --title "chore: bump version to ${{ steps.version.outputs.new_version }}" \
@@ -62,17 +62,17 @@ jobs:
             --base main \
             --head release/v${{ steps.version.outputs.new_version }} \
             --label release)
-          
+
           if [ -z "$PR_URL" ]; then
             echo "::error::Failed to create PR"
             exit 1
           fi
-          
+
           echo "Created PR: $PR_URL"
-          
+
           PR_NUMBER=$(echo $PR_URL | sed 's|.*/||')
-          
+
           echo "Merging PR #$PR_NUMBER..."
           gh pr merge $PR_NUMBER --squash --delete-branch
-          
+
           echo "::notice::PR #$PR_NUMBER created and merged successfully"

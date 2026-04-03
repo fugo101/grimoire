@@ -12,7 +12,7 @@ env:
 jobs:
   publish:
     if: contains(github.event.head_commit.message, 'bump version to')
-    runs-on: [ self-hosted, Linux, X64 ]
+    runs-on: [self-hosted, Linux, X64]
 
     permissions:
       contents: write
@@ -41,13 +41,13 @@ jobs:
           git config user.name "fudio101"
           git config user.email "thenguyen1024@gmail.com"
           git remote set-url origin git@github.com:${{ github.repository }}.git
-          
+
           # Check if tag already exists
           if git ls-remote --tags origin | grep -q "refs/tags/${{ steps.version.outputs.tag }}$"; then
             echo "::error::Tag ${{ steps.version.outputs.tag }} already exists"
             exit 1
           fi
-          
+
           git tag ${{ steps.version.outputs.tag }}
           git push origin ${{ steps.version.outputs.tag }}
 
@@ -87,8 +87,8 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
           set -e
-          
+
           echo "Creating GitHub Release for ${{ steps.version.outputs.tag }}..."
           gh release create ${{ steps.version.outputs.tag }} --generate-notes
-          
+
           echo "::notice::Release ${{ steps.version.outputs.tag }} created successfully"
