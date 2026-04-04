@@ -42,12 +42,12 @@ function SelectTrigger({
       data-size={size}
       className={cn(
         "flex w-fit items-center justify-between gap-1.5",
-        "rounded-lg border border-input bg-transparent",
+        "border-input rounded-lg border bg-transparent",
         "py-2 pr-2 pl-2.5 text-sm whitespace-nowrap",
         "transition-colors outline-none select-none",
         "data-placeholder:text-muted-foreground",
-        "focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50",
-        "aria-invalid:border-destructive aria-invalid:ring-3 aria-invalid:ring-destructive/20",
+        "focus-visible:border-ring focus-visible:ring-ring/50 focus-visible:ring-3",
+        "aria-invalid:border-destructive aria-invalid:ring-destructive/20 aria-invalid:ring-3",
         "disabled:cursor-not-allowed disabled:opacity-50",
         "dark:bg-input/30 dark:hover:bg-input/50",
         "dark:aria-invalid:border-destructive/50 dark:aria-invalid:ring-destructive/40",
@@ -104,9 +104,9 @@ function SelectContent({
           data-slot="select-content"
           data-align-trigger={alignItemWithTrigger}
           className={cn(
-            "relative isolate z-50 min-w-36 origin-(--transform-origin) pointer-events-auto",
+            "pointer-events-auto relative isolate z-50 min-w-36 origin-(--transform-origin)",
             "max-h-(--available-height) w-(--anchor-width) overflow-x-hidden overflow-y-auto",
-            "rounded-lg shadow-md ring-1 ring-foreground/10",
+            "ring-foreground/10 rounded-lg shadow-md ring-1",
             "bg-popover text-popover-foreground",
             "data-open:animate-in data-open:fade-in-0 data-open:zoom-in-95",
             "data-closed:animate-out data-closed:fade-out-0 data-closed:zoom-out-95",
@@ -198,7 +198,7 @@ function SelectScrollUpButton({
       data-slot="select-scroll-up-button"
       className={cn(
         "flex w-full cursor-default items-center justify-center py-1",
-        "top-0 z-10 bg-popover",
+        "bg-popover top-0 z-10",
         "[&_svg:not([class*='size-'])]:size-4",
         className
       )}
@@ -218,7 +218,7 @@ function SelectScrollDownButton({
       data-slot="select-scroll-down-button"
       className={cn(
         "flex w-full cursor-default items-center justify-center py-1",
-        "bottom-0 z-10 bg-popover",
+        "bg-popover bottom-0 z-10",
         "[&_svg:not([class*='size-'])]:size-4",
         className
       )}
