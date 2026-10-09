@@ -14,7 +14,7 @@ export async function GET(request: Request) {
     fundingSource: searchParams.get("fundingSource") ?? undefined,
   });
   if (!parsed.success) {
-    return Response.json({ error: "Tham số không hợp lệ." }, { status: 400 });
+    return Response.json({ error: "invalid_params" }, { status: 400 });
   }
 
   return Response.json(

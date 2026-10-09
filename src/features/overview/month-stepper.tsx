@@ -1,7 +1,8 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
-import { addMonths, formatMonthLabel, getCurrentMonth } from "@/lib/format";
+import { addMonths, getCurrentMonth } from "@/lib/format";
+import { useFormatters } from "@/hooks/use-formatters";
 
 /**
  * Month navigation as two big arrows around a label, rather than a range
@@ -19,6 +20,7 @@ export function MonthStepper({
   month: string;
   onChange: (month: string) => void;
 }) {
+  const { formatMonthLabel } = useFormatters();
   const atCurrent = month >= getCurrentMonth();
 
   return (

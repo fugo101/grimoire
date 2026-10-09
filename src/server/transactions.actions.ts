@@ -11,6 +11,7 @@ import {
   PURPOSE_DIMENSION,
   dimensionExists,
 } from "@/server/dimensions.server";
+import { actionError } from "@/i18n/keys";
 import type { ActionState } from "@/lib/types";
 
 /**
@@ -22,18 +23,24 @@ import type { ActionState } from "@/lib/types";
  * dimension all along, and its non-leaf level was the Funding Source.
  *
  * Checked here rather than left to the foreign keys so the caller gets an
- * `ActionState` with a sentence in it instead of a raw SQLite throw.
+ * `ActionState` naming the missing dimension instead of a raw SQLite throw.
  */
 async function validateDimensions(
   data: TransactionInput
 ): Promise<ActionState | null> {
   if (!(await dimensionExists(PURPOSE_DIMENSION, data.purposeId))) {
-    return { success: false, error: PURPOSE_DIMENSION.labels.notFound };
+    return {
+      success: false,
+      error: actionError(PURPOSE_DIMENSION.errors.notFound),
+    };
   }
   if (
     !(await dimensionExists(FUNDING_SOURCE_DIMENSION, data.fundingSourceId))
   ) {
-    return { success: false, error: FUNDING_SOURCE_DIMENSION.labels.notFound };
+    return {
+      success: false,
+      error: actionError(FUNDING_SOURCE_DIMENSION.errors.notFound),
+    };
   }
   return null;
 }

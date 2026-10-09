@@ -2,7 +2,8 @@ import type { ColumnDef } from "@tanstack/react-table";
 import { Pencil, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { formatDateTime, formatVND } from "@/lib/format";
+import { formatDateTime } from "@/lib/format";
+import { useFormatters } from "@/hooks/use-formatters";
 import type { TransactionTableFeatures } from "@/features/transactions/table-features";
 import type { TransactionTableRow } from "@/lib/types";
 
@@ -35,6 +36,12 @@ type ActionHandlers = {
  * definition and hide the `actions` column; it now renders its own card list,
  * so this serves one screen and the column order is free again.
  */
+/** A component rather than a call so the cell can read the active locale. */
+function Amount({ amount }: { amount: number }) {
+  const { formatVND } = useFormatters();
+  return formatVND(amount);
+}
+
 export function transactionColumns(
   handlers?: ActionHandlers
 ): ColumnDef<TransactionTableFeatures, TransactionTableRow>[] {
@@ -81,7 +88,7 @@ export function transactionColumns(
       meta: { align: "right" as const },
       cell: ({ row }) => (
         <span className="block text-right font-medium">
-          {formatVND(row.original.amount)}
+          <Amount amount={row.original.amount} />
         </span>
       ),
     },

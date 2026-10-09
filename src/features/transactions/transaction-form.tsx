@@ -6,6 +6,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { SubmitButton } from "@/components/submit-button";
+import { FieldError } from "@/components/field-error";
 import { CurrencyInput } from "@/components/currency-input";
 import { DimensionChips } from "@/features/dimensions/dimension-chips";
 import {
@@ -17,7 +18,10 @@ import {
   updateTransaction,
 } from "@/server/transactions.actions";
 import { transactionSchema } from "@/lib/schemas";
-import { formatRelativeDay, formatTime } from "@/lib/format";
+import { formatTime } from "@/lib/format";
+import { useErrorMessage } from "@/hooks/use-error-message";
+import { useFormatters } from "@/hooks/use-formatters";
+import type { ActionError } from "@/i18n/keys";
 import { toastSuccess } from "@/lib/toast";
 import type { FundingSource, Purpose } from "@/lib/db/schema";
 
@@ -63,7 +67,9 @@ export function TransactionForm({
   onSuccess,
 }: TransactionFormProps) {
   const queryClient = useQueryClient();
-  const [serverError, setServerError] = useState<string | null>(null);
+  const [serverError, setServerError] = useState<ActionError | null>(null);
+  const errorMessage = useErrorMessage();
+  const { formatRelativeDay } = useFormatters();
   const [showDate, setShowDate] = useState(false);
   const isEdit = Boolean(defaultValues);
 
@@ -150,11 +156,7 @@ export function TransactionForm({
               onChange={field.handleChange}
               placeholder="0"
             />
-            {field.state.meta.errors[0] && (
-              <p className="text-sm text-destructive">
-                {field.state.meta.errors[0].message}
-              </p>
-            )}
+            <FieldError errors={field.state.meta.errors} />
           </div>
         )}
       </form.Field>
@@ -176,6 +178,7 @@ export function TransactionForm({
               onBlur={field.handleBlur}
               onChange={(e) => field.handleChange(e.target.value)}
             />
+            <FieldError errors={field.state.meta.errors} />
           </div>
         )}
       </form.Field>
@@ -204,11 +207,7 @@ export function TransactionForm({
               onChange={(id) => field.handleChange(id ?? "")}
               copy={PURPOSE_COPY}
             />
-            {field.state.meta.errors[0] && (
-              <p className="text-sm text-destructive">
-                {field.state.meta.errors[0].message}
-              </p>
-            )}
+            <FieldError errors={field.state.meta.errors} />
           </div>
         )}
       </form.Field>
@@ -223,11 +222,7 @@ export function TransactionForm({
               onChange={(id) => field.handleChange(id ?? "")}
               copy={FUNDING_SOURCE_COPY}
             />
-            {field.state.meta.errors[0] && (
-              <p className="text-sm text-destructive">
-                {field.state.meta.errors[0].message}
-              </p>
-            )}
+            <FieldError errors={field.state.meta.errors} />
           </div>
         )}
       </form.Field>
@@ -261,18 +256,14 @@ export function TransactionForm({
                 <span className="ml-auto underline">Đổi</span>
               </button>
             )}
-            {field.state.meta.errors[0] && (
-              <p className="text-sm text-destructive">
-                {field.state.meta.errors[0].message}
-              </p>
-            )}
+            <FieldError errors={field.state.meta.errors} />
           </div>
         )}
       </form.Field>
 
       {serverError && (
         <p role="alert" className="text-sm text-destructive">
-          {serverError}
+          {errorMessage(serverError)}
         </p>
       )}
 

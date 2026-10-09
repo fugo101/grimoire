@@ -8,11 +8,12 @@ import { MonthStepper } from "@/features/overview/month-stepper";
 import { MonthlyTrendChart } from "@/features/overview/monthly-trend-chart";
 import { StatTile, TotalCard } from "@/features/overview/summary-cards";
 import { useDelayedPending } from "@/hooks/use-delayed-pending";
-import { formatVND } from "@/lib/format";
+import { useFormatters } from "@/hooks/use-formatters";
 import { overviewQueryOptions } from "@/lib/query-options";
 import { cn } from "@/lib/utils";
 
 export function OverviewView({ month }: { month: string }) {
+  const { formatVND } = useFormatters();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const showPending = useDelayedPending(isPending);

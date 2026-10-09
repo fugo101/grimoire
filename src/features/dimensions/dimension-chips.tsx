@@ -1,4 +1,5 @@
 import { useId } from "react";
+import { useTranslations } from "next-intl";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import type { DimensionCopy } from "@/features/dimensions/dimension-copy";
 import type { DimensionOption } from "@/lib/types";
@@ -16,8 +17,9 @@ const STALE = "__stale__";
 
 /**
  * The one word that is the same for both dimensions, so it lives here rather
- * than in `dimension-copy.ts`, which holds only what *differs*. The group is
- * labelled by the dimension's question, so "Tất cả" alone is unambiguous.
+ * than in either dimension's catalog subtree, which hold only what *differs*.
+ * The group is labelled by the dimension's question, so "Tất cả" alone is
+ * unambiguous.
  */
 const EVERYTHING_LABEL = "Tất cả";
 
@@ -66,7 +68,7 @@ export function resolveSelection(
  *   buttons whose relationship is only visual.
  * - **A stale value must not read as "everything".** When `value` names no
  *   option — an id left in a URL after a rename or a delete — the
- *   "everything" chip is *not* pressed; a pressed chip reading `copy.unknown`
+ *   "everything" chip is *not* pressed; a pressed chip reading `unknown`
  *   stands in its place, so the reader can see a filter is active and clear
  *   it. Without this, a filter matching zero rows would look identical to no
  *   filter at all.
@@ -90,12 +92,13 @@ export function DimensionChips({
   /** The selected option's id, or `null` for everything / not yet chosen. */
   value: string | null;
   onChange: (value: string | null) => void;
-  copy: Pick<DimensionCopy, "question" | "unknown">;
+  copy: Pick<DimensionCopy, "namespace">;
   /** No "everything" chip; nothing is pressed until a choice is made. */
   required?: boolean;
   className?: string;
 }) {
   const labelId = useId();
+  const t = useTranslations(copy.namespace);
 
   const isStale =
     value !== null && !options.some((option) => option.id === value);
@@ -109,7 +112,7 @@ export function DimensionChips({
   return (
     <div className={cn("space-y-2", className)}>
       <p id={labelId} className="text-sm leading-none font-medium">
-        {copy.question}
+        {t("question")}
       </p>
       <ToggleGroup
         aria-labelledby={labelId}
@@ -132,7 +135,7 @@ export function DimensionChips({
           // Pressed, because it *is* the active value. Tapping it clears (in a
           // filter) — see `resolveSelection`.
           <Chip value={STALE} className="text-muted-foreground">
-            {copy.unknown}
+            {t("unknown")}
           </Chip>
         )}
       </ToggleGroup>

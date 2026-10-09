@@ -1,4 +1,9 @@
 allowBuilds:
+  # Pulled in by next-intl for its message extractor, which this app does not
+  # use. Their install scripts would try to build native code, and the
+  # self-hosted runner has no build toolchain.
+  "@parcel/watcher": false
+  "@swc/core": false
   better-sqlite3: true
   esbuild: true
   sharp: true

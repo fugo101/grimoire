@@ -1,6 +1,36 @@
-const VND_GROUPING = new Intl.NumberFormat("vi-VN", {
-  maximumFractionDigits: 0,
-});
+/**
+ * Every function here takes the locale as a parameter rather than reading it,
+ * so it stays callable from tests and from the server. Components get them
+ * pre-bound through `useFormatters()`, which supplies the active locale and the
+ * catalog's words.
+ *
+ * The locale only changes how an amount is *written* — grouping, the decimal
+ * separator. Every amount is VND whatever the UI language (see CONTEXT.md), so
+ * the ₫ is never the locale's to change.
+ */
+const groupingCache = new Map<string, Intl.NumberFormat>();
+const decimalCache = new Map<string, string>();
+
+function grouping(locale: string): Intl.NumberFormat {
+  let format = groupingCache.get(locale);
+  if (!format) {
+    format = new Intl.NumberFormat(locale, { maximumFractionDigits: 0 });
+    groupingCache.set(locale, format);
+  }
+  return format;
+}
+
+function decimalSeparator(locale: string): string {
+  let separator = decimalCache.get(locale);
+  if (separator === undefined) {
+    separator =
+      new Intl.NumberFormat(locale)
+        .formatToParts(1.5)
+        .find((part) => part.type === "decimal")?.value ?? ".";
+    decimalCache.set(locale, separator);
+  }
+  return separator;
+}
 
 /** The current month as `YYYY-MM`, the key every month-scoped view is built on. */
 export function getCurrentMonth(): string {
@@ -16,34 +46,34 @@ export function addMonths(month: string, delta: number): string {
 }
 
 /**
- * Vietnamese grouping: 1.234.567 ₫, not the 1,234,567 ₫ this shipped with.
- * `toLocaleString("en-US")` was a migration leftover and read as foreign in an
- * otherwise entirely Vietnamese UI.
+ * Vietnamese grouping for "vi": 1.234.567 ₫, not the 1,234,567 ₫ this shipped
+ * with. `toLocaleString("en-US")` was a migration leftover and read as foreign
+ * in an otherwise entirely Vietnamese UI.
  *
  * Negative amounts render as −1.234 ₫ with a real minus sign rather than a
  * hyphen, so they line up with digits instead of sitting half a pixel high.
  */
-export function formatVND(amount: number): string {
+export function formatVND(amount: number, locale: string): string {
   const value = Number(amount);
   if (!Number.isFinite(value)) return "0 ₫";
   const sign = value < 0 ? "−" : "";
-  return `${sign}${VND_GROUPING.format(Math.abs(value))} ₫`;
+  return `${sign}${grouping(locale).format(Math.abs(value))} ₫`;
 }
 
-/** Axis and chip label: 1,5M / 250K. Keeps the Vietnamese decimal comma. */
-export function formatCompactVND(amount: number): string {
+/**
+ * Axis and chip label: 1,5M / 250K. The decimal separator is the locale's —
+ * the Vietnamese comma for "vi" — and everything else is exactly what this
+ * produced when the comma was hardcoded.
+ */
+export function formatCompactVND(amount: number, locale: string): string {
   const abs = Math.abs(amount);
   const sign = amount < 0 ? "−" : "";
-  if (abs >= 1_000_000) {
-    const val = abs / 1_000_000;
-    const text = val % 1 === 0 ? String(val) : val.toFixed(1).replace(".", ",");
-    return `${sign}${text}M`;
-  }
-  if (abs >= 1_000) {
-    const val = abs / 1_000;
-    const text = val % 1 === 0 ? String(val) : val.toFixed(1).replace(".", ",");
-    return `${sign}${text}K`;
-  }
+  const fraction = (val: number) =>
+    val % 1 === 0
+      ? String(val)
+      : val.toFixed(1).replace(".", decimalSeparator(locale));
+  if (abs >= 1_000_000) return `${sign}${fraction(abs / 1_000_000)}M`;
+  if (abs >= 1_000) return `${sign}${fraction(abs / 1_000)}K`;
   return `${sign}${abs}`;
 }
 
@@ -58,19 +88,32 @@ export function formatDateTime(isoString: string): string {
   return `${dd}/${mm}/${yyyy} ${hh}:${min}`;
 }
 
-/** `2026-07` -> `Tháng 7 / 2026`, the heading for every month-scoped view. */
-export function formatMonthLabel(month: string): string {
+/**
+ * `2026-07` -> `Tháng 7 / 2026`, the heading for every month-scoped view. The
+ * words come from the catalog through `label`; this only splits the key, so the
+ * month arrives without its leading zero and the year as written — both as
+ * strings, so an ICU `{year}` is never grouped into "2.026".
+ */
+export function formatMonthLabel(
+  month: string,
+  label: (month: string, year: string) => string
+): string {
   const [year, mon] = month.split("-");
   if (!year || !mon) return month;
-  return `Tháng ${Number(mon)} / ${year}`;
+  return label(String(Number(mon)), year);
 }
 
 /**
- * `Hôm nay` / `Hôm qua` / `15/07`, for transaction rows where the year is
- * almost always the current one and repeating it is noise. Compares calendar
- * days rather than elapsed hours, so 23:30 yesterday reads as "Hôm qua".
+ * Today / yesterday / `15/07`, for transaction rows where the year is almost
+ * always the current one and repeating it is noise. Compares calendar days
+ * rather than elapsed hours, so 23:30 yesterday reads as yesterday. The two
+ * words come from the catalog through `words`.
  */
-export function formatRelativeDay(isoString: string, now = new Date()): string {
+export function formatRelativeDay(
+  isoString: string,
+  words: { today: string; yesterday: string },
+  now = new Date()
+): string {
   const d = new Date(isoString);
   if (isNaN(d.getTime())) return isoString;
 
@@ -80,8 +123,8 @@ export function formatRelativeDay(isoString: string, now = new Date()): string {
     (startOfDay(now) - startOfDay(d)) / (24 * 60 * 60 * 1000)
   );
 
-  if (dayDelta === 0) return "Hôm nay";
-  if (dayDelta === 1) return "Hôm qua";
+  if (dayDelta === 0) return words.today;
+  if (dayDelta === 1) return words.yesterday;
 
   const dd = String(d.getDate()).padStart(2, "0");
   const mm = String(d.getMonth() + 1).padStart(2, "0");

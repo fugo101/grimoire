@@ -1,4 +1,24 @@
 import type { NextConfig } from "next";
+import createNextIntlPlugin from "next-intl/plugin";
+
+/**
+ * next-intl is an exception to CLAUDE.md's TanStack → shadcn → Tailwind order:
+ * none of the three does i18n, and ICU plurals/interpolation are what a
+ * hand-rolled catalog would end up reimplementing badly.
+ *
+ * The plugin only adds an alias for the request config and, with
+ * `createMessagesDeclaration`, writes `messages/vi.d.json.ts` on `next
+ * typegen`/dev/build — the exact message types that make a missing ICU
+ * argument a compile error. `pnpm run typecheck` already runs `next typegen`
+ * before `tsc`, so the generated file is gitignored rather than committed.
+ * Everything in `nextConfig` below passes through it untouched.
+ */
+const withNextIntl = createNextIntlPlugin({
+  requestConfig: "./src/i18n/request.ts",
+  experimental: {
+    createMessagesDeclaration: "./messages/vi.json",
+  },
+});
 
 const nextConfig: NextConfig = {
   output: "standalone",
@@ -150,4 +170,4 @@ const nextConfig: NextConfig = {
   },
 };
 
-export default nextConfig;
+export default withNextIntl(nextConfig);

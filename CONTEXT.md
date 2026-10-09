@@ -11,7 +11,7 @@ A self-hosted personal expense tracker used by a single admin, with a Vietnamese
 Every **Transaction** is described by two **independent** dimensions: what the money was used for (**Purpose**) and which pot it came out of (**Funding Source**). The two are orthogonal — knowing one tells you nothing about the other.
 
 **Transaction**:
-An amount of money spent at a point in time, always stored as a positive number. Every Transaction is an outflow — this context has no concept of income, not even for entries whose note reads like money coming back in.
+An amount of money spent at a point in time, always stored as a positive number. Every Transaction is an outflow — this context has no concept of income, not even for entries whose note reads like money coming back in. Every amount is in Vietnamese đồng: there is no other currency, and the language the UI is shown in changes only how an amount is written, never what it is denominated in.
 _Avoid_: Expense record, entry, khoản chi
 
 **Purpose** (UI: _Mục đích chi_):

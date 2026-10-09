@@ -10,7 +10,8 @@ import {
   ItemTitle,
 } from "@/components/ui/item";
 import { ConfirmDialog } from "@/components/confirm-dialog";
-import { formatRelativeDay, formatTime, formatVND } from "@/lib/format";
+import { formatTime } from "@/lib/format";
+import { useFormatters } from "@/hooks/use-formatters";
 import type { TransactionTableRow } from "@/lib/types";
 
 const ESTIMATED_CARD_HEIGHT = 84;
@@ -55,6 +56,7 @@ export function TransactionCardList({
    * compiles this one and has to be told not to.
    */
   "use no memo";
+  const { formatRelativeDay, formatVND } = useFormatters();
   const listRef = useRef<HTMLDivElement>(null);
   const showActions = Boolean(onEdit && onDelete);
 

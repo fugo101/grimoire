@@ -5,7 +5,8 @@ import {
   ItemTitle,
 } from "@/components/ui/item";
 import { Empty, EmptyDescription, EmptyTitle } from "@/components/ui/empty";
-import { formatRelativeDay, formatTime, formatVND } from "@/lib/format";
+import { formatTime } from "@/lib/format";
+import { useFormatters } from "@/hooks/use-formatters";
 import type { TransactionTableRow } from "@/lib/types";
 
 /**
@@ -25,6 +26,7 @@ export function PublicTransactionList({
 }: {
   transactions: TransactionTableRow[];
 }) {
+  const { formatRelativeDay, formatVND } = useFormatters();
   if (transactions.length === 0) {
     return (
       <Empty>

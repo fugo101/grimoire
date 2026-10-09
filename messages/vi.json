@@ -1,0 +1,73 @@
+{
+  "common": {
+    "format": {
+      "monthLabel": "Tháng {month} / {year}",
+      "today": "Hôm nay",
+      "yesterday": "Hôm qua"
+    }
+  },
+  "validation": {
+    "invalid": "Giá trị không hợp lệ",
+    "monthFormat": "Tháng phải có dạng YYYY-MM",
+    "amountPositive": "Số tiền phải lớn hơn 0",
+    "dateRequired": "Vui lòng chọn thời gian",
+    "noteTooLong": "Ghi chú tối đa 500 ký tự",
+    "nameTooLong": "Tên tối đa 100 ký tự",
+    "shareCodeFormat": "Mã chỉ gồm a-z, A-Z, 0-9, dấu gạch ngang (8-32 ký tự)",
+    "shareLinkPurposesRequired": "Chọn ít nhất 1 mục đích chi",
+    "usernameRequired": "Vui lòng nhập tên đăng nhập",
+    "passwordRequired": "Vui lòng nhập mật khẩu"
+  },
+  "errors": {
+    "auth": {
+      "invalidCredentials": "Sai tên đăng nhập hoặc mật khẩu.",
+      "tooManyAttempts": "Quá nhiều lần đăng nhập sai. Vui lòng thử lại sau {minutes, number} phút.",
+      "sessionExpired": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+    },
+    "shareLinks": {
+      "notFound": "Không tìm thấy liên kết.",
+      "codeTaken": "Mã này đã tồn tại.",
+      "purposeNotFound": "Một hoặc nhiều mục đích chi không tồn tại."
+    }
+  },
+  "dimensions": {
+    "purpose": {
+      "plural": "Mục đích chi",
+      "question": "Tiền dùng để làm gì?",
+      "unknown": "Mục đích chi không còn tồn tại",
+      "nameLabel": "Tên mục đích chi",
+      "createLabel": "Thêm mục đích chi",
+      "editTitle": "Sửa mục đích chi",
+      "deleteTitle": "Xoá mục đích chi",
+      "deleteConfirm": "Bạn có chắc chắn muốn xoá mục đích chi \"{name}\"?",
+      "emptyTitle": "Chưa có mục đích chi",
+      "emptyDescription": "Tạo mục đích chi đầu tiên để bắt đầu ghi chi tiêu.",
+      "required": "Vui lòng chọn mục đích chi",
+      "nameRequired": "Vui lòng nhập tên mục đích chi",
+      "errors": {
+        "notFound": "Không tìm thấy mục đích chi.",
+        "inUse": "Không thể xoá mục đích chi đã có giao dịch.",
+        "nameTaken": "Đã có mục đích chi tên này."
+      }
+    },
+    "fundingSource": {
+      "plural": "Nguồn tiền",
+      "question": "Tiền lấy từ đâu?",
+      "unknown": "Nguồn tiền không còn tồn tại",
+      "nameLabel": "Tên nguồn tiền",
+      "createLabel": "Thêm nguồn tiền",
+      "editTitle": "Sửa nguồn tiền",
+      "deleteTitle": "Xoá nguồn tiền",
+      "deleteConfirm": "Bạn có chắc chắn muốn xoá nguồn tiền \"{name}\"?",
+      "emptyTitle": "Chưa có nguồn tiền",
+      "emptyDescription": "Tạo nguồn tiền đầu tiên để bắt đầu ghi chi tiêu.",
+      "required": "Vui lòng chọn nguồn tiền",
+      "nameRequired": "Vui lòng nhập tên nguồn tiền",
+      "errors": {
+        "notFound": "Không tìm thấy nguồn tiền.",
+        "inUse": "Không thể xoá nguồn tiền đã có giao dịch.",
+        "nameTaken": "Đã có nguồn tiền tên này."
+      }
+    }
+  }
+}

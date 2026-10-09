@@ -9,7 +9,7 @@ import { ExpenseChart } from "@/features/transactions/expense-chart";
 import { TransactionFilters } from "@/features/transactions/transaction-filters";
 import { TransactionTable } from "@/features/transactions/transaction-table";
 import { useDelayedPending } from "@/hooks/use-delayed-pending";
-import { formatVND } from "@/lib/format";
+import { useFormatters } from "@/hooks/use-formatters";
 import {
   fundingSourcesQueryOptions,
   purposesQueryOptions,
@@ -28,6 +28,7 @@ function buildHref(next: Partial<TransactionSearch>): Route {
 }
 
 export function TransactionsView({ search }: { search: TransactionSearch }) {
+  const { formatVND } = useFormatters();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
   const showPending = useDelayedPending(isPending);

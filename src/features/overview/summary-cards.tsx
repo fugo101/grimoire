@@ -1,6 +1,6 @@
 import { ArrowDown, ArrowUp, Minus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { formatVND } from "@/lib/format";
+import { useFormatters } from "@/hooks/use-formatters";
 import { cn } from "@/lib/utils";
 
 /**
@@ -16,6 +16,7 @@ export function TotalCard({
   previousTotal: number;
   count: number;
 }) {
+  const { formatVND } = useFormatters();
   const delta = total - previousTotal;
   const pct =
     previousTotal > 0 ? Math.round((delta / previousTotal) * 100) : null;

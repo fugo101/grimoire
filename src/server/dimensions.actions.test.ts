@@ -92,7 +92,9 @@ describe("Purpose management", () => {
     const result = await createPurpose({ name: "Mục X" });
 
     expect(result.success).toBe(false);
-    expect(result.error).toMatch(/đã có mục đích chi tên này/i);
+    expect(result.error).toEqual({
+      key: "dimensions.purpose.errors.nameTaken",
+    });
     expect(await purposeNames()).toEqual(before);
 
     // The control: a name nobody uses is still accepted.
@@ -142,7 +144,7 @@ describe("Purpose management", () => {
     const result = await updatePurpose("no-such-purpose", { name: "Mục ma" });
 
     expect(result.success).toBe(false);
-    expect(result.error).toMatch(/không tìm thấy mục đích chi/i);
+    expect(result.error).toEqual({ key: "dimensions.purpose.errors.notFound" });
     // Nothing was created as a side effect of the failed rename.
     expect(await purposeNames()).toEqual(before);
   });
@@ -151,7 +153,7 @@ describe("Purpose management", () => {
     const result = await deletePurpose(PURPOSE.x);
 
     expect(result.success).toBe(false);
-    expect(result.error).toMatch(/không thể xoá mục đích chi đã có giao dịch/i);
+    expect(result.error).toEqual({ key: "dimensions.purpose.errors.inUse" });
     expect(await exists(purposes, PURPOSE.x)).toBe(true);
   });
 
@@ -225,7 +227,9 @@ describe("Funding Source management", () => {
     const result = await createFundingSource({ name: "Nguồn A" });
 
     expect(result.success).toBe(false);
-    expect(result.error).toMatch(/đã có nguồn tiền tên này/i);
+    expect(result.error).toEqual({
+      key: "dimensions.fundingSource.errors.nameTaken",
+    });
 
     // The control, and the proof the two dimensions have separate namespaces:
     // a Purpose's name is free to use as a Funding Source.
@@ -250,7 +254,9 @@ describe("Funding Source management", () => {
     const result = await deleteFundingSource(FUNDING.a);
 
     expect(result.success).toBe(false);
-    expect(result.error).toMatch(/không thể xoá nguồn tiền đã có giao dịch/i);
+    expect(result.error).toEqual({
+      key: "dimensions.fundingSource.errors.inUse",
+    });
     expect(await exists(fundingSources, FUNDING.a)).toBe(true);
   });
 
@@ -291,7 +297,9 @@ describe("the two dimensions do not reach into each other", () => {
     // the wrong one is refused rather than quietly reported as deleted.
     const crossDelete = await deleteFundingSource(PURPOSE.x);
     expect(crossDelete.success).toBe(false);
-    expect(crossDelete.error).toMatch(/không tìm thấy nguồn tiền/i);
+    expect(crossDelete.error).toEqual({
+      key: "dimensions.fundingSource.errors.notFound",
+    });
     expect(await exists(purposes, PURPOSE.x)).toBe(true);
 
     expect((await updatePurpose(FUNDING.a, { name: "Nhầm" })).success).toBe(

@@ -23,18 +23,23 @@ function originIsTrusted(request: Request): boolean {
 /**
  * Auth + origin gate for a private Route Handler GET. Returns a Response to
  * send immediately when the request is rejected, or null to continue.
+ *
+ * Error bodies across the Route Handlers are fixed English machine codes, not
+ * catalog messages: `fetchJson` throws on the status and never reads the body,
+ * so no user sees them, and translating text nobody reads would only grow the
+ * catalog.
  */
 export async function guardApiRequest(
   request: Request
 ): Promise<Response | null> {
   if (!originIsTrusted(request)) {
-    return Response.json({ error: "Origin không hợp lệ." }, { status: 403 });
+    return Response.json({ error: "forbidden_origin" }, { status: 403 });
   }
   try {
     await requireAuth();
   } catch (err) {
     if (err instanceof UnauthorizedError) {
-      return Response.json({ error: "Chưa đăng nhập." }, { status: 401 });
+      return Response.json({ error: "unauthorized" }, { status: 401 });
     }
     throw err;
   }

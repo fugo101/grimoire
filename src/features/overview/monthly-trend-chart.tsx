@@ -7,7 +7,7 @@ import {
   type ChartConfig,
 } from "@/components/ui/chart";
 import { useMediaQuery } from "@/hooks/use-media-query";
-import { formatCompactVND, formatMonthLabel, formatVND } from "@/lib/format";
+import { useFormatters } from "@/hooks/use-formatters";
 
 const chartConfig = {
   total: { label: "Tổng chi", color: "var(--chart-1)" },
@@ -26,6 +26,7 @@ export function MonthlyTrendChart({
 }: {
   series: { month: string; total: number }[];
 }) {
+  const { formatCompactVND, formatMonthLabel, formatVND } = useFormatters();
   const isDesktop = useMediaQuery("(min-width: 640px)");
 
   const data = series.map((point) => {

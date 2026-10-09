@@ -5,6 +5,7 @@ import { TransactionForm } from "@/features/transactions/transaction-form";
 import { TransactionDataTable } from "@/features/transactions/transaction-data-table";
 import { transactionColumns } from "@/features/transactions/columns";
 import { deleteTransaction } from "@/server/transactions.actions";
+import { useErrorMessage } from "@/hooks/use-error-message";
 import { toastError } from "@/lib/toast";
 import type { FundingSource, Purpose } from "@/lib/db/schema";
 import type { TransactionTableRow } from "@/lib/types";
@@ -20,12 +21,13 @@ export function TransactionTable({
 }) {
   const [editingTx, setEditingTx] = useState<TransactionTableRow | null>(null);
   const queryClient = useQueryClient();
+  const errorMessage = useErrorMessage();
 
   const remove = useMutation({
     mutationFn: (id: string) => deleteTransaction(id),
     onSuccess: async (result) => {
       if (!result.success) {
-        toastError(result.error);
+        toastError(errorMessage(result.error));
         return;
       }
       await Promise.all([

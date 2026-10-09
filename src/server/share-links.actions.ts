@@ -11,11 +11,12 @@ import {
   codeTaken,
   generateCode,
 } from "@/server/share-links.server";
+import { actionError } from "@/i18n/keys";
 import type { ActionState } from "@/lib/types";
 
-const NOT_FOUND = "Không tìm thấy liên kết.";
-const CODE_TAKEN = "Mã này đã tồn tại.";
-const PURPOSE_NOT_FOUND = "Một hoặc nhiều mục đích chi không tồn tại.";
+const NOT_FOUND = actionError("errors.shareLinks.notFound");
+const CODE_TAKEN = actionError("errors.shareLinks.codeTaken");
+const PURPOSE_NOT_FOUND = actionError("errors.shareLinks.purposeNotFound");
 
 export async function createShareLink(
   input: ShareLinkFormValues

@@ -4,6 +4,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SubmitButton } from "@/components/submit-button";
+import { FieldError } from "@/components/field-error";
+import { useErrorMessage } from "@/hooks/use-error-message";
+import type { ActionError } from "@/i18n/keys";
 import { PurposeMultiSelect } from "@/features/share-links/purpose-multi-select";
 import { createShareLink, updateShareLink } from "@/server/share-links.actions";
 import { shareLinkSchema, type ShareLinkFormValues } from "@/lib/schemas";
@@ -26,7 +29,8 @@ export function ShareLinkForm({
   onSuccess?: () => void;
 }) {
   const queryClient = useQueryClient();
-  const [serverError, setServerError] = useState<string | null>(null);
+  const [serverError, setServerError] = useState<ActionError | null>(null);
+  const errorMessage = useErrorMessage();
 
   const initialValues: ShareLinkFormValues = {
     name: defaultValues?.name ?? "",
@@ -81,6 +85,7 @@ export function ShareLinkForm({
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
               />
+              <FieldError errors={field.state.meta.errors} />
             </div>
           )}
         </form.Field>
@@ -96,11 +101,7 @@ export function ShareLinkForm({
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
               />
-              {field.state.meta.errors[0] && (
-                <p className="text-sm text-destructive">
-                  {field.state.meta.errors[0].message}
-                </p>
-              )}
+              <FieldError errors={field.state.meta.errors} />
             </div>
           )}
         </form.Field>
@@ -121,18 +122,14 @@ export function ShareLinkForm({
               value={field.state.value}
               onChange={field.handleChange}
             />
-            {field.state.meta.errors[0] && (
-              <p className="text-sm text-destructive">
-                {field.state.meta.errors[0].message}
-              </p>
-            )}
+            <FieldError errors={field.state.meta.errors} />
           </div>
         )}
       </form.Field>
 
       {serverError && (
         <p role="alert" className="text-sm text-destructive">
-          {serverError}
+          {errorMessage(serverError)}
         </p>
       )}
 
