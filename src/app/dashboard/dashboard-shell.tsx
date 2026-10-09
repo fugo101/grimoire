@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import {
   useMutation,
   useQueryClient,
@@ -21,7 +22,8 @@ import { cn } from "@/lib/utils";
 
 const NAV: {
   href: "/dashboard" | "/dashboard/transactions" | "/dashboard/manage";
-  label: string;
+  /** Under `dashboard.nav` in the catalog. */
+  label: "overview" | "transactions" | "manage";
   Icon: typeof LayoutGrid;
   /**
    * "/dashboard" must match exactly or it stays highlighted on every child
@@ -30,9 +32,9 @@ const NAV: {
    */
   exact?: boolean;
 }[] = [
-  { href: "/dashboard", label: "Tổng quan", Icon: LayoutGrid, exact: true },
-  { href: "/dashboard/transactions", label: "Giao dịch", Icon: Receipt },
-  { href: "/dashboard/manage", label: "Quản lý", Icon: Settings },
+  { href: "/dashboard", label: "overview", Icon: LayoutGrid, exact: true },
+  { href: "/dashboard/transactions", label: "transactions", Icon: Receipt },
+  { href: "/dashboard/manage", label: "manage", Icon: Settings },
 ];
 
 /**
@@ -42,6 +44,7 @@ const NAV: {
  * the header on hydration for desktop's primary navigation.
  */
 export function DashboardShell({ children }: { children: React.ReactNode }) {
+  const t = useTranslations("dashboard");
   const themePreference = useThemePreference();
   const router = useRouter();
   const queryClient = useQueryClient();
@@ -85,7 +88,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 activeClassName="bg-accent text-foreground"
               >
                 <Icon className="size-4" />
-                {label}
+                {t(`nav.${label}`)}
               </NavLink>
             ))}
           </nav>
@@ -99,7 +102,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             >
               <SubmitButton variant="ghost" isLoading={signOut.isPending}>
                 <LogOut />
-                Đăng xuất
+                {t("signOut")}
               </SubmitButton>
             </form>
           </div>
@@ -121,7 +124,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               variant="ghost"
               size="icon"
               isLoading={signOut.isPending}
-              aria-label="Đăng xuất"
+              aria-label={t("signOut")}
             >
               <LogOut />
             </SubmitButton>
@@ -150,7 +153,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
       </div>
 
       <nav
-        aria-label="Điều hướng chính"
+        aria-label={t("nav.label")}
         className="fixed inset-x-0 bottom-0 z-40 border-t bg-background md:hidden"
         style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
       >
@@ -167,7 +170,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
                 activeClassName="text-brand"
               >
                 <Icon className="size-5" />
-                {label}
+                {t(`nav.${label}`)}
               </NavLink>
             </li>
           ))}

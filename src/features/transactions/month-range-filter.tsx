@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { Calendar as CalendarIcon, X } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -37,6 +38,7 @@ export function MonthRangeFilter({
   onChange,
   className,
 }: MonthRangeFilterProps) {
+  const t = useTranslations();
   const [open, setOpen] = React.useState(false);
 
   const start = parseMonth(fromMonth);
@@ -70,7 +72,7 @@ export function MonthRangeFilter({
               dateRange.end
             )}`
           ) : (
-            <span>Tất cả thời gian</span>
+            <span>{t("common.allTime")}</span>
           )}
         </PopoverTrigger>
         <PopoverContent className="w-auto p-0" align="start">
@@ -87,7 +89,7 @@ export function MonthRangeFilter({
           variant="ghost"
           size="icon"
           onClick={handleClear}
-          title="Xoá bộ lọc (hiện tất cả)"
+          title={t("transactions.clearFilter")}
         >
           <X className="h-4 w-4" />
         </Button>

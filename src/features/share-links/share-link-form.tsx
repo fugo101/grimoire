@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
@@ -30,6 +31,7 @@ export function ShareLinkForm({
 }) {
   const queryClient = useQueryClient();
   const [serverError, setServerError] = useState<ActionError | null>(null);
+  const t = useTranslations();
   const errorMessage = useErrorMessage();
 
   const initialValues: ShareLinkFormValues = {
@@ -76,11 +78,11 @@ export function ShareLinkForm({
         <form.Field name="name">
           {(field) => (
             <div className="flex-1 space-y-1.5">
-              <Label htmlFor={field.name}>Tên link</Label>
+              <Label htmlFor={field.name}>{t("shareLinks.form.name")}</Label>
               <Input
                 id={field.name}
                 name={field.name}
-                placeholder="Ví dụ: Chi tiêu gia đình"
+                placeholder={t("shareLinks.form.namePlaceholder")}
                 value={field.state.value}
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
@@ -92,11 +94,11 @@ export function ShareLinkForm({
         <form.Field name="code">
           {(field) => (
             <div className="flex-1 space-y-1.5">
-              <Label htmlFor={field.name}>Mã link</Label>
+              <Label htmlFor={field.name}>{t("shareLinks.form.code")}</Label>
               <Input
                 id={field.name}
                 name={field.name}
-                placeholder="Để trống = tự tạo"
+                placeholder={t("shareLinks.form.codePlaceholder")}
                 value={field.state.value}
                 onBlur={field.handleBlur}
                 onChange={(e) => field.handleChange(e.target.value)}
@@ -116,7 +118,7 @@ export function ShareLinkForm({
       <form.Field name="purposeIds">
         {(field) => (
           <div className="space-y-1.5">
-            <Label>Mục đích chi được chia sẻ</Label>
+            <Label>{t("shareLinks.form.purposes")}</Label>
             <PurposeMultiSelect
               purposes={purposes}
               value={field.state.value}
@@ -136,7 +138,7 @@ export function ShareLinkForm({
       <form.Subscribe selector={(s) => s.isSubmitting}>
         {(isSubmitting) => (
           <SubmitButton className="w-full" isLoading={isSubmitting}>
-            {defaultValues ? "Cập nhật" : "Tạo link"}
+            {defaultValues ? t("common.update") : t("shareLinks.form.create")}
           </SubmitButton>
         )}
       </form.Subscribe>

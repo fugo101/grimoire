@@ -21,7 +21,7 @@ import type {
   DimensionSchema,
 } from "@/features/dimensions/dimension-copy";
 import { useErrorMessage } from "@/hooks/use-error-message";
-import { toastError } from "@/lib/toast";
+import { useErrorToast } from "@/hooks/use-error-toast";
 import type { ActionState } from "@/lib/types";
 
 export type DimensionEntry = { id: string; name: string };
@@ -53,7 +53,9 @@ export function DimensionList({
   const [editing, setEditing] = useState<DimensionEntry | null>(null);
   const queryClient = useQueryClient();
   const t = useTranslations(copy.namespace);
+  const tCommon = useTranslations("common");
   const errorMessage = useErrorMessage();
+  const toastError = useErrorToast();
 
   const deleteEntry = useMutation({
     mutationFn: remove,
@@ -70,7 +72,7 @@ export function DimensionList({
       // the message before it reaches the client, so without this the admin
       // gets "An unexpected response was received from the server." in the
       // middle of a Vietnamese screen.
-      toastError("Không xoá được. Vui lòng thử lại.");
+      toastError(tCommon("deleteFailed"));
     },
   });
 
@@ -101,7 +103,7 @@ export function DimensionList({
               <Button
                 variant="ghost"
                 size="icon"
-                aria-label={`Sửa ${entry.name}`}
+                aria-label={tCommon("editItem", { name: entry.name })}
                 onClick={() => setEditing(entry)}
               >
                 <Pencil />
@@ -112,7 +114,7 @@ export function DimensionList({
                   <Button
                     variant="ghost"
                     size="icon"
-                    aria-label={`Xoá ${entry.name}`}
+                    aria-label={tCommon("deleteItem", { name: entry.name })}
                     className="text-destructive hover:text-destructive"
                   >
                     <Trash2 />

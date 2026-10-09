@@ -2,14 +2,15 @@
 
 import { Monitor, Moon, Sun } from "lucide-react";
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { persistTheme, type ThemePreference } from "@/lib/theme";
 
-const OPTIONS: { value: ThemePreference; label: string; Icon: typeof Sun }[] = [
-  { value: "light", label: "Sáng", Icon: Sun },
-  { value: "dark", label: "Tối", Icon: Moon },
-  { value: "system", label: "Hệ thống", Icon: Monitor },
+const OPTIONS: { value: ThemePreference; Icon: typeof Sun }[] = [
+  { value: "light", Icon: Sun },
+  { value: "dark", Icon: Moon },
+  { value: "system", Icon: Monitor },
 ];
 
 /**
@@ -32,13 +33,15 @@ export function ThemeToggle({
 }: {
   themePreference: ThemePreference;
 }) {
+  const t = useTranslations("common.theme");
   const [preference, setPreference] =
     useState<ThemePreference>(themePreference);
 
   return (
-    <ButtonGroup aria-label="Giao diện">
-      {OPTIONS.map(({ value, label, Icon }) => {
+    <ButtonGroup aria-label={t("label")}>
+      {OPTIONS.map(({ value, Icon }) => {
         const active = preference === value;
+        const label = t(value);
         return (
           <Button
             key={value}
@@ -48,7 +51,7 @@ export function ThemeToggle({
             // aria-pressed rather than aria-current: these are toggle buttons,
             // and only one is pressed at a time.
             aria-pressed={active}
-            aria-label={`Giao diện: ${label}`}
+            aria-label={t("option", { name: label })}
             title={label}
             onClick={() => {
               setPreference(value);

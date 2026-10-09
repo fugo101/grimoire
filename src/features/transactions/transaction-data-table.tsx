@@ -1,4 +1,5 @@
 import { useRef } from "react";
+import { useTranslations } from "next-intl";
 import {
   flexRender,
   useTable,
@@ -55,6 +56,7 @@ export function TransactionDataTable({
    * below the fold and both branches show the same rows in the same order,
    * unlike the app navigation which is switched with CSS for that reason.
    */
+  const t = useTranslations("transactions");
   const isDesktop = useMediaQuery("(min-width: 768px)");
 
   // Mirrors the SQL ordering the server already applies, so the first paint
@@ -97,7 +99,7 @@ export function TransactionDataTable({
           <EmptyMedia variant="icon">
             <Receipt />
           </EmptyMedia>
-          <EmptyTitle>Chưa có giao dịch</EmptyTitle>
+          <EmptyTitle>{t("emptyTitle")}</EmptyTitle>
           <EmptyDescription>{emptyMessage}</EmptyDescription>
         </EmptyHeader>
       </Empty>

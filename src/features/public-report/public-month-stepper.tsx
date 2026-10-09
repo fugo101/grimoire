@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { addMonths, getCurrentMonth } from "@/lib/format";
 import { useFormatters } from "@/hooks/use-formatters";
@@ -21,6 +22,7 @@ export function PublicMonthStepper({
   month: string | null;
   onChange: (month: string | null) => void;
 }) {
+  const t = useTranslations();
   const { formatMonthLabel } = useFormatters();
   const current = getCurrentMonth();
   const active = month ?? current;
@@ -36,7 +38,7 @@ export function PublicMonthStepper({
         >
           <span className="flex items-center gap-1 text-sm text-muted-foreground">
             <ChevronLeft className="size-4" />
-            Tháng trước
+            {t("common.previousMonth")}
           </span>
         </Button>
 
@@ -44,7 +46,7 @@ export function PublicMonthStepper({
           aria-live="polite"
           className="flex h-14 flex-[1.4] items-center justify-center rounded-lg border border-input bg-muted/40 px-2 text-center font-semibold"
         >
-          {month ? formatMonthLabel(month) : "Tất cả thời gian"}
+          {month ? formatMonthLabel(month) : t("common.allTime")}
         </div>
 
         <Button
@@ -54,7 +56,7 @@ export function PublicMonthStepper({
           onClick={() => onChange(addMonths(active, 1))}
         >
           <span className="flex items-center gap-1 text-sm text-muted-foreground">
-            Tháng sau
+            {t("common.nextMonth")}
             <ChevronRight className="size-4" />
           </span>
         </Button>
@@ -63,11 +65,11 @@ export function PublicMonthStepper({
       <div className="text-center">
         {month ? (
           <Button variant="link" onClick={() => onChange(null)}>
-            Xem tất cả thời gian
+            {t("publicReport.showAllTime")}
           </Button>
         ) : (
           <Button variant="link" onClick={() => onChange(current)}>
-            Chỉ xem tháng này
+            {t("publicReport.onlyThisMonth")}
           </Button>
         )}
       </div>

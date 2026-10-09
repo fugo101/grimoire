@@ -1,6 +1,7 @@
 "use client";
 
 import * as React from "react";
+import { useTranslations } from "next-intl";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button, buttonVariants } from "./button";
 import { cn } from "@/lib/utils";
@@ -20,63 +21,63 @@ const addMonths = (input: Date, months: number) => {
 const getDaysInMonth = (year: number, month: number) =>
   new Date(year, month, 0).getDate();
 
+/** A cell of the month grid. Its label comes from the catalog at render. */
 type Month = {
   number: number;
-  name: string;
   yearOffset: number;
 };
 
 const MONTHS_DOUBLE: Month[][] = [
   [
-    { number: 0, name: "Th.1", yearOffset: 0 },
-    { number: 1, name: "Th.2", yearOffset: 0 },
-    { number: 2, name: "Th.3", yearOffset: 0 },
-    { number: 3, name: "Th.4", yearOffset: 0 },
-    { number: 0, name: "Th.1", yearOffset: 1 },
-    { number: 1, name: "Th.2", yearOffset: 1 },
-    { number: 2, name: "Th.3", yearOffset: 1 },
-    { number: 3, name: "Th.4", yearOffset: 1 },
+    { number: 0, yearOffset: 0 },
+    { number: 1, yearOffset: 0 },
+    { number: 2, yearOffset: 0 },
+    { number: 3, yearOffset: 0 },
+    { number: 0, yearOffset: 1 },
+    { number: 1, yearOffset: 1 },
+    { number: 2, yearOffset: 1 },
+    { number: 3, yearOffset: 1 },
   ],
   [
-    { number: 4, name: "Th.5", yearOffset: 0 },
-    { number: 5, name: "Th.6", yearOffset: 0 },
-    { number: 6, name: "Th.7", yearOffset: 0 },
-    { number: 7, name: "Th.8", yearOffset: 0 },
-    { number: 4, name: "Th.5", yearOffset: 1 },
-    { number: 5, name: "Th.6", yearOffset: 1 },
-    { number: 6, name: "Th.7", yearOffset: 1 },
-    { number: 7, name: "Th.8", yearOffset: 1 },
+    { number: 4, yearOffset: 0 },
+    { number: 5, yearOffset: 0 },
+    { number: 6, yearOffset: 0 },
+    { number: 7, yearOffset: 0 },
+    { number: 4, yearOffset: 1 },
+    { number: 5, yearOffset: 1 },
+    { number: 6, yearOffset: 1 },
+    { number: 7, yearOffset: 1 },
   ],
   [
-    { number: 8, name: "Th.9", yearOffset: 0 },
-    { number: 9, name: "Th.10", yearOffset: 0 },
-    { number: 10, name: "Th.11", yearOffset: 0 },
-    { number: 11, name: "Th.12", yearOffset: 0 },
-    { number: 8, name: "Th.9", yearOffset: 1 },
-    { number: 9, name: "Th.10", yearOffset: 1 },
-    { number: 10, name: "Th.11", yearOffset: 1 },
-    { number: 11, name: "Th.12", yearOffset: 1 },
+    { number: 8, yearOffset: 0 },
+    { number: 9, yearOffset: 0 },
+    { number: 10, yearOffset: 0 },
+    { number: 11, yearOffset: 0 },
+    { number: 8, yearOffset: 1 },
+    { number: 9, yearOffset: 1 },
+    { number: 10, yearOffset: 1 },
+    { number: 11, yearOffset: 1 },
   ],
 ];
 
 const MONTHS_SINGLE: Month[][] = [
   [
-    { number: 0, name: "Th.1", yearOffset: 0 },
-    { number: 1, name: "Th.2", yearOffset: 0 },
-    { number: 2, name: "Th.3", yearOffset: 0 },
-    { number: 3, name: "Th.4", yearOffset: 0 },
+    { number: 0, yearOffset: 0 },
+    { number: 1, yearOffset: 0 },
+    { number: 2, yearOffset: 0 },
+    { number: 3, yearOffset: 0 },
   ],
   [
-    { number: 4, name: "Th.5", yearOffset: 0 },
-    { number: 5, name: "Th.6", yearOffset: 0 },
-    { number: 6, name: "Th.7", yearOffset: 0 },
-    { number: 7, name: "Th.8", yearOffset: 0 },
+    { number: 4, yearOffset: 0 },
+    { number: 5, yearOffset: 0 },
+    { number: 6, yearOffset: 0 },
+    { number: 7, yearOffset: 0 },
   ],
   [
-    { number: 8, name: "Th.9", yearOffset: 0 },
-    { number: 9, name: "Th.10", yearOffset: 0 },
-    { number: 10, name: "Th.11", yearOffset: 0 },
-    { number: 11, name: "Th.12", yearOffset: 0 },
+    { number: 8, yearOffset: 0 },
+    { number: 9, yearOffset: 0 },
+    { number: 10, yearOffset: 0 },
+    { number: 11, yearOffset: 0 },
   ],
 ];
 
@@ -88,27 +89,32 @@ type QuickSelector = {
   onClick?: (selector: QuickSelector) => void;
 };
 
-const getDefaultQuickSelectors = (): QuickSelector[] => {
+const getDefaultQuickSelectors = (labels: {
+  thisYear: string;
+  lastYear: string;
+  last6Months: string;
+  last12Months: string;
+}): QuickSelector[] => {
   const now = new Date();
   const year = now.getFullYear();
   return [
     {
-      label: "Năm nay",
+      label: labels.thisYear,
       startMonth: new Date(year, 0),
       endMonth: new Date(year, 11),
     },
     {
-      label: "Năm trước",
+      label: labels.lastYear,
       startMonth: new Date(year - 1, 0),
       endMonth: new Date(year - 1, 11),
     },
     {
-      label: "6 tháng gần đây",
+      label: labels.last6Months,
       startMonth: addMonths(now, -6),
       endMonth: now,
     },
     {
-      label: "12 tháng gần đây",
+      label: labels.last12Months,
       startMonth: addMonths(now, -12),
       endMonth: now,
     },
@@ -202,7 +208,15 @@ function MonthRangeCal({
   onYearBackward,
   onYearForward,
 }: MonthRangeCalProps) {
-  const selectors = quickSelectors ?? getDefaultQuickSelectors();
+  const t = useTranslations("common");
+  const selectors =
+    quickSelectors ??
+    getDefaultQuickSelectors({
+      thisYear: t("monthRange.thisYear"),
+      lastYear: t("monthRange.lastYear"),
+      last6Months: t("monthRange.last6Months"),
+      last12Months: t("monthRange.last12Months"),
+    });
   const [startYear, setStartYear] = React.useState<number>(
     selectedMonthRange?.start.getFullYear() ?? new Date().getFullYear()
   );
@@ -366,7 +380,11 @@ function MonthRangeCal({
                           : ""
                       )}
                     >
-                      {callbacks?.monthLabel ? callbacks.monthLabel(m) : m.name}
+                      {callbacks?.monthLabel
+                        ? callbacks.monthLabel(m)
+                        : t("format.shortMonth", {
+                            month: String(m.number + 1),
+                          })}
                     </button>
                   </td>
                 );

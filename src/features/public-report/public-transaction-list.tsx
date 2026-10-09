@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import {
   Item,
   ItemContent,
@@ -26,13 +27,14 @@ export function PublicTransactionList({
 }: {
   transactions: TransactionTableRow[];
 }) {
+  const t = useTranslations();
   const { formatRelativeDay, formatVND } = useFormatters();
   if (transactions.length === 0) {
     return (
       <Empty>
-        <EmptyTitle>Chưa có khoản chi nào</EmptyTitle>
+        <EmptyTitle>{t("publicReport.list.emptyTitle")}</EmptyTitle>
         <EmptyDescription>
-          Không có khoản chi nào trong khoảng thời gian này.
+          {t("publicReport.list.emptyDescription")}
         </EmptyDescription>
       </Empty>
     );
@@ -45,7 +47,7 @@ export function PublicTransactionList({
           <Item variant="outline" className="items-start">
             <ItemContent>
               <ItemTitle className="text-base leading-snug">
-                {tx.note || "Không có ghi chú"}
+                {tx.note || t("common.noNote")}
               </ItemTitle>
               <ItemDescription className="text-[0.9375rem]">
                 {tx.purposeName} · {tx.fundingSourceName}

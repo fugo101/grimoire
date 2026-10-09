@@ -3,6 +3,7 @@
 import { useMemo, useTransition } from "react";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { PurposeBreakdown } from "@/features/overview/purpose-breakdown";
@@ -148,6 +149,7 @@ function ReportBody({
 }) {
   // Collapsed on a phone, where an open chart pushes the entries off screen;
   // open from md, where there is room for both.
+  const t = useTranslations();
   const isWide = useMediaQuery("(min-width: 768px)");
 
   /**
@@ -206,12 +208,16 @@ function ReportBody({
       <header className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between">
         <div className="min-w-0">
           <h1 className="text-2xl font-bold tracking-tight break-words">
-            {linkName || "Báo cáo chi tiêu"}
+            {linkName || t("publicReport.defaultTitle")}
           </h1>
-          <p className="text-muted-foreground">Báo cáo được chia sẻ với bạn</p>
+          <p className="text-muted-foreground">
+            {t("publicReport.sharedWithYou")}
+          </p>
         </div>
         <div className="flex shrink-0 items-center gap-2">
-          <span className="text-muted-foreground">Giao diện</span>
+          <span className="text-muted-foreground">
+            {t("common.theme.label")}
+          </span>
           <ThemeToggle themePreference={themePreference} />
         </div>
       </header>
@@ -276,7 +282,9 @@ function ReportBody({
         </div>
 
         <section className="min-w-0 space-y-3">
-          <h2 className="font-semibold tracking-tight">Từng khoản chi</h2>
+          <h2 className="font-semibold tracking-tight">
+            {t("publicReport.transactionsHeading")}
+          </h2>
           <PublicTransactionList transactions={transactions} />
         </section>
       </div>

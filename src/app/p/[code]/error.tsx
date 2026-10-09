@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { PublicShell } from "./public-shell";
 
@@ -10,17 +11,14 @@ import { PublicShell } from "./public-shell";
  * error boundary re-rendering with the same stale props.
  */
 export default function PublicError() {
+  const t = useTranslations("publicReport.error");
   return (
     <PublicShell>
       <div className="space-y-3 py-16 text-center">
-        <h1 className="text-2xl font-bold tracking-tight">
-          Chưa tải được báo cáo
-        </h1>
-        <p className="text-muted-foreground">
-          Có lỗi xảy ra khi tải dữ liệu. Bạn thử tải lại trang giúp nhé.
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
+        <p className="text-muted-foreground">{t("description")}</p>
         <Button size="lg" onClick={() => window.location.reload()}>
-          Tải lại trang
+          {t("reload")}
         </Button>
       </div>
     </PublicShell>

@@ -45,6 +45,7 @@ export function DimensionForm({
   const queryClient = useQueryClient();
   const [serverError, setServerError] = useState<ActionError | null>(null);
   const t = useTranslations(copy.namespace);
+  const tCommon = useTranslations("common");
   const errorMessage = useErrorMessage();
 
   const form = useForm({
@@ -101,7 +102,7 @@ export function DimensionForm({
       <form.Subscribe selector={(s) => s.isSubmitting}>
         {(isSubmitting) => (
           <SubmitButton className="w-full" isLoading={isSubmitting}>
-            {defaultValues ? "Cập nhật" : t("createLabel")}
+            {defaultValues ? tCommon("update") : t("createLabel")}
           </SubmitButton>
         )}
       </form.Subscribe>

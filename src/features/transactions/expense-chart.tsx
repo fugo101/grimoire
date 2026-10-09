@@ -1,5 +1,6 @@
 import { useMemo, useState } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { useTranslations } from "next-intl";
 import {
   type ChartConfig,
   ChartContainer,
@@ -29,19 +30,7 @@ import {
 } from "@/lib/chart-utils";
 import { useFormatters } from "@/hooks/use-formatters";
 
-const chartConfig = {
-  total: {
-    label: "Tổng chi",
-    color: "var(--chart-1)",
-  },
-} satisfies ChartConfig;
-
-const GRANULARITY_OPTIONS: { value: Granularity; label: string }[] = [
-  { value: "day", label: "Ngày" },
-  { value: "week", label: "Tuần" },
-  { value: "month", label: "Tháng" },
-  { value: "year", label: "Năm" },
-];
+const GRANULARITIES: Granularity[] = ["day", "week", "month", "year"];
 
 interface ExpenseChartProps {
   transactions: Array<{ amount: number; date: string }>;
@@ -49,7 +38,7 @@ interface ExpenseChartProps {
    * Start collapsed, with the card's own header acting as the toggle.
    *
    * The shared report used to wrap this in a separate collapsible box, which
-   * produced two frames and two titles — a "Xem biểu đồ" button and then this
+   * produced two frames and two titles — a "show chart" button and then this
    * card underneath it, visibly not inside it. Worse, Recharts' responsive
    * container measured its parent while that box was still animating from zero
    * height and computed a width wider than the screen, so opening the chart
@@ -63,15 +52,25 @@ export function ExpenseChart({
   transactions,
   collapsible = false,
 }: ExpenseChartProps) {
+  const t = useTranslations();
   const { formatCompactVND, formatVND } = useFormatters();
+  // Built per render because its label comes from the catalog.
+  const chartConfig = {
+    total: { label: t("common.totalSpent"), color: "var(--chart-1)" },
+  } satisfies ChartConfig;
   const [granularity, setGranularity] = useState<Granularity>("week");
   const [open, setOpen] = useState(!collapsible);
   const isDesktop = useMediaQuery("(min-width: 640px)");
   const expanded = !collapsible || open;
 
   const chartData = useMemo(
-    () => groupTransactionsByGranularity(transactions, granularity),
-    [transactions, granularity]
+    () =>
+      groupTransactionsByGranularity(transactions, granularity, {
+        week: (week) => t("common.format.week", { week }),
+        month: (month, year) =>
+          t("common.format.shortMonthYear", { month, year }),
+      }),
+    [transactions, granularity, t]
   );
 
   return (
@@ -85,7 +84,7 @@ export function ExpenseChart({
               aria-expanded={expanded}
               className="-my-1 flex w-full items-center gap-2 rounded-md py-1 text-left"
             >
-              <span className="flex-1">Tổng chi theo thời gian</span>
+              <span className="flex-1">{t("transactions.chart.title")}</span>
               <ChevronDown
                 className={cn(
                   "size-5 shrink-0 text-muted-foreground transition-transform",
@@ -94,7 +93,7 @@ export function ExpenseChart({
               />
             </button>
           ) : (
-            "Tổng chi theo thời gian"
+            t("transactions.chart.title")
           )}
         </CardTitle>
         <CardAction hidden={!expanded}>
@@ -104,16 +103,15 @@ export function ExpenseChart({
           >
             <SelectTrigger size="sm" className="w-[100px]">
               <SelectValue>
-                {(value) =>
-                  GRANULARITY_OPTIONS.find((o) => o.value === value)?.label ??
-                  "Ngày"
+                {(value: Granularity | null) =>
+                  t(`transactions.chart.granularity.${value ?? "day"}`)
                 }
               </SelectValue>
             </SelectTrigger>
             <SelectContent align="end">
-              {GRANULARITY_OPTIONS.map((o) => (
-                <SelectItem key={o.value} value={o.value}>
-                  {o.label}
+              {GRANULARITIES.map((value) => (
+                <SelectItem key={value} value={value}>
+                  {t(`transactions.chart.granularity.${value}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -124,7 +122,7 @@ export function ExpenseChart({
         <CardContent>
           {chartData.length === 0 ? (
             <div className="flex h-[220px] items-center justify-center text-sm text-muted-foreground">
-              Không có dữ liệu để hiển thị biểu đồ.
+              {t("transactions.chart.empty")}
             </div>
           ) : (
             <ChartContainer
@@ -158,7 +156,7 @@ export function ExpenseChart({
                     <ChartTooltipContent
                       formatter={(value) => [
                         formatVND(Number(value)),
-                        "Tổng chi",
+                        t("common.totalSpent"),
                       ]}
                     />
                   }

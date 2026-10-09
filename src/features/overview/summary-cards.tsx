@@ -1,4 +1,5 @@
 import { ArrowDown, ArrowUp, Minus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { useFormatters } from "@/hooks/use-formatters";
 import { cn } from "@/lib/utils";
@@ -16,6 +17,8 @@ export function TotalCard({
   previousTotal: number;
   count: number;
 }) {
+  const t = useTranslations("overview.total");
+  const tComparison = useTranslations("common.comparison");
   const { formatVND } = useFormatters();
   const delta = total - previousTotal;
   const pct =
@@ -33,19 +36,27 @@ export function TotalCard({
 
   let comparison: string;
   if (previousTotal === 0) {
-    comparison = "Tháng trước chưa có chi tiêu nào";
+    comparison = t("noneLastMonth");
   } else if (delta === 0) {
-    comparison = "Bằng đúng tháng trước";
+    comparison = tComparison("same");
   } else {
-    const direction = delta > 0 ? "Nhiều hơn" : "Ít hơn";
-    const amount = formatVND(Math.abs(delta));
-    comparison = `${direction} tháng trước ${amount}${pct !== null ? ` (${Math.abs(pct)}%)` : ""}`;
+    const change = {
+      direction: delta > 0 ? "more" : "less",
+      amount: formatVND(Math.abs(delta)),
+    };
+    comparison =
+      pct !== null
+        ? tComparison("changeWithPercent", {
+            ...change,
+            percent: String(Math.abs(pct)),
+          })
+        : tComparison("change", change);
   }
 
   return (
     <Card>
       <CardContent className="space-y-1 py-2">
-        <p className="text-sm text-muted-foreground">Tổng chi tháng này</p>
+        <p className="text-sm text-muted-foreground">{t("label")}</p>
         <p className="text-3xl font-bold tracking-tight tabular-nums md:text-4xl">
           {formatVND(total)}
         </p>
@@ -53,11 +64,7 @@ export function TotalCard({
           <Icon className="size-4 shrink-0" aria-hidden />
           <span>{comparison}</span>
         </p>
-        <p className="text-sm text-muted-foreground">
-          {count === 0
-            ? "Chưa có khoản chi nào"
-            : `${count} khoản chi trong tháng`}
-        </p>
+        <p className="text-sm text-muted-foreground">{t("count", { count })}</p>
       </CardContent>
     </Card>
   );

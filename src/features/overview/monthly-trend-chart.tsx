@@ -1,4 +1,5 @@
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartContainer,
@@ -8,10 +9,6 @@ import {
 } from "@/components/ui/chart";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { useFormatters } from "@/hooks/use-formatters";
-
-const chartConfig = {
-  total: { label: "Tổng chi", color: "var(--chart-1)" },
-} satisfies ChartConfig;
 
 /**
  * Change over time, one series — so a plain bar chart with no legend. The title
@@ -26,13 +23,22 @@ export function MonthlyTrendChart({
 }: {
   series: { month: string; total: number }[];
 }) {
+  const t = useTranslations("common");
+  const tOverview = useTranslations("overview");
   const { formatCompactVND, formatMonthLabel, formatVND } = useFormatters();
+  // Built per render because its label comes from the catalog.
+  const chartConfig = {
+    total: { label: t("totalSpent"), color: "var(--chart-1)" },
+  } satisfies ChartConfig;
   const isDesktop = useMediaQuery("(min-width: 640px)");
 
   const data = series.map((point) => {
     const [year, mon] = point.month.split("-");
     return {
-      label: `Th.${Number(mon)}/${year.slice(2)}`,
+      label: t("format.shortMonthYear", {
+        month: String(Number(mon)),
+        year: year.slice(2),
+      }),
       full: formatMonthLabel(point.month),
       total: point.total,
     };
@@ -41,7 +47,7 @@ export function MonthlyTrendChart({
   return (
     <Card>
       <CardHeader>
-        <CardTitle>6 tháng gần đây</CardTitle>
+        <CardTitle>{tOverview("trend.title")}</CardTitle>
       </CardHeader>
       <CardContent>
         <ChartContainer config={chartConfig} className="h-[200px] w-full">
@@ -73,7 +79,10 @@ export function MonthlyTrendChart({
               content={
                 <ChartTooltipContent
                   labelKey="full"
-                  formatter={(value) => [formatVND(Number(value)), "Tổng chi"]}
+                  formatter={(value) => [
+                    formatVND(Number(value)),
+                    t("totalSpent"),
+                  ]}
                 />
               }
             />

@@ -3,6 +3,7 @@
 import { useTransition } from "react";
 import { useRouter } from "next/navigation";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { PurposeBreakdown } from "@/features/overview/purpose-breakdown";
 import { MonthStepper } from "@/features/overview/month-stepper";
 import { MonthlyTrendChart } from "@/features/overview/monthly-trend-chart";
@@ -13,6 +14,7 @@ import { overviewQueryOptions } from "@/lib/query-options";
 import { cn } from "@/lib/utils";
 
 export function OverviewView({ month }: { month: string }) {
+  const t = useTranslations("overview");
   const { formatVND } = useFormatters();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -52,8 +54,8 @@ export function OverviewView({ month }: { month: string }) {
           />
         </div>
         <div className="grid grid-cols-2 gap-4 md:grid-cols-1">
-          <StatTile label="Trung bình mỗi ngày" value={formatVND(perDay)} />
-          <StatTile label="Số khoản chi" value={String(data.count)} />
+          <StatTile label={t("perDay")} value={formatVND(perDay)} />
+          <StatTile label={t("count")} value={String(data.count)} />
         </div>
       </div>
 
