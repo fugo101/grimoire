@@ -1,6 +1,7 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { addMonths, formatMonthLabel, getCurrentMonth } from "@/lib/format";
+import { addMonths, getCurrentMonth } from "@/lib/format";
+import { useFormatters } from "@/hooks/use-formatters";
 
 /**
  * Month navigation for the shared report.
@@ -20,6 +21,7 @@ export function PublicMonthStepper({
   month: string | null;
   onChange: (month: string | null) => void;
 }) {
+  const { formatMonthLabel } = useFormatters();
   const current = getCurrentMonth();
   const active = month ?? current;
   const atCurrent = active >= current;

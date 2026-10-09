@@ -1,6 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Empty, EmptyDescription, EmptyTitle } from "@/components/ui/empty";
-import { formatVND } from "@/lib/format";
+import { useFormatters } from "@/hooks/use-formatters";
 import type { PurposeTotal } from "@/lib/types";
 
 /**
@@ -29,6 +29,7 @@ export function PurposeBreakdown({
   items: PurposeTotal[];
   total: number;
 }) {
+  const { formatVND } = useFormatters();
   return (
     <Card>
       <CardHeader>

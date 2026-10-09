@@ -1,6 +1,9 @@
+import type { ActionError } from "@/i18n/keys";
+
 export type ActionState = {
   success: boolean;
-  error?: string;
+  /** A catalog key, never prose — see `ActionError` and ADR-0004. */
+  error?: ActionError;
 };
 
 /** The two dimensions of a transaction, as every read path returns them. */

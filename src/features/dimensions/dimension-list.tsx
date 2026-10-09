@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Pencil, Tags, Trash2 } from "lucide-react";
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -19,6 +20,7 @@ import type {
   DimensionCopy,
   DimensionSchema,
 } from "@/features/dimensions/dimension-copy";
+import { useErrorMessage } from "@/hooks/use-error-message";
 import { toastError } from "@/lib/toast";
 import type { ActionState } from "@/lib/types";
 
@@ -31,7 +33,7 @@ export type DimensionEntry = { id: string; name: string };
  * no indentation budget to spend on a fourth level, and no "this row has N
  * children" warning on delete — a Purpose has no children, and the only reason
  * a delete is ever refused now is that transactions still point at it, which
- * the server answers with a sentence.
+ * the server answers with a message of its own.
  */
 export function DimensionList({
   entries,
@@ -50,12 +52,14 @@ export function DimensionList({
 }) {
   const [editing, setEditing] = useState<DimensionEntry | null>(null);
   const queryClient = useQueryClient();
+  const t = useTranslations(copy.namespace);
+  const errorMessage = useErrorMessage();
 
   const deleteEntry = useMutation({
     mutationFn: remove,
     onSuccess: async (result) => {
       if (!result.success) {
-        toastError(result.error);
+        toastError(errorMessage(result.error));
         return;
       }
       await invalidateDimension(queryClient, copy);
@@ -77,8 +81,8 @@ export function DimensionList({
           <EmptyMedia variant="icon">
             <Tags />
           </EmptyMedia>
-          <EmptyTitle>{copy.emptyTitle}</EmptyTitle>
-          <EmptyDescription>{copy.emptyDescription}</EmptyDescription>
+          <EmptyTitle>{t("emptyTitle")}</EmptyTitle>
+          <EmptyDescription>{t("emptyDescription")}</EmptyDescription>
         </EmptyHeader>
       </Empty>
     );
@@ -114,8 +118,8 @@ export function DimensionList({
                     <Trash2 />
                   </Button>
                 }
-                title={copy.deleteTitle}
-                description={copy.deleteConfirm(entry.name)}
+                title={t("deleteTitle")}
+                description={t("deleteConfirm", { name: entry.name })}
                 onConfirm={() => deleteEntry.mutateAsync(entry.id)}
               />
             </div>
@@ -131,7 +135,7 @@ export function DimensionList({
       <ResponsiveModal
         open={editing !== null}
         onOpenChange={(open) => !open && setEditing(null)}
-        title={copy.editTitle}
+        title={t("editTitle")}
       >
         {editing && (
           <DimensionForm

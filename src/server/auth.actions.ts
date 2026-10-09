@@ -14,6 +14,7 @@ import {
 import { loginSchema, type LoginInput } from "@/lib/schemas";
 import { COOKIE_OPTIONS, requireAuthForAction } from "@/server/auth-guard";
 import { getClientKey } from "@/server/request-ip";
+import { actionError } from "@/i18n/keys";
 import type { ActionState } from "@/lib/types";
 
 /**
@@ -33,7 +34,7 @@ export async function login(input: LoginInput): Promise<ActionState> {
     const minutes = Math.max(1, Math.ceil(limit.retryAfterMs / 60_000));
     return {
       success: false,
-      error: `Quá nhiều lần đăng nhập sai. Vui lòng thử lại sau ${minutes} phút.`,
+      error: actionError("errors.auth.tooManyAttempts", { minutes }),
     };
   }
 
@@ -48,7 +49,10 @@ export async function login(input: LoginInput): Promise<ActionState> {
     !validateCredentials(parsed.data.username, parsed.data.password)
   ) {
     recordLoginFailure(client);
-    return { success: false, error: "Sai tên đăng nhập hoặc mật khẩu." };
+    return {
+      success: false,
+      error: actionError("errors.auth.invalidCredentials"),
+    };
   }
 
   // Cleared before the session is minted: a crash in between leaves a stale

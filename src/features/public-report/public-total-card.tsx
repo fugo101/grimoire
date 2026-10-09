@@ -1,6 +1,6 @@
 import { ArrowDown, ArrowUp, Minus } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
-import { formatVND } from "@/lib/format";
+import { useFormatters } from "@/hooks/use-formatters";
 import { cn } from "@/lib/utils";
 
 /**
@@ -22,6 +22,7 @@ export function PublicTotalCard({
   previousTotal: number | null;
   count: number;
 }) {
+  const { formatVND } = useFormatters();
   const delta = previousTotal === null ? null : total - previousTotal;
   const pct =
     previousTotal && previousTotal > 0 && delta !== null

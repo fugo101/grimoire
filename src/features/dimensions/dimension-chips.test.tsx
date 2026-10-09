@@ -4,6 +4,8 @@ import {
   DimensionChips,
   resolveSelection,
 } from "@/features/dimensions/dimension-chips";
+import { PURPOSE_COPY } from "@/features/dimensions/dimension-copy";
+import { messages, withIntl } from "@/test/intl";
 
 /**
  * The chips replaced a `DimensionSelect` (since deleted) on the filter rows
@@ -22,10 +24,9 @@ const OPTIONS = [
   { id: "opt-2", name: "Lựa chọn hai" },
 ];
 
-const COPY = {
-  question: "Chọn cái nào?",
-  unknown: "Không còn tồn tại",
-};
+// The words the chips render for this dimension, read from the catalog the
+// component translates through — so these assertions follow the catalog.
+const WORDS = messages.dimensions.purpose;
 
 // The word the reader sees on the clearing chip — asserted as the literal a
 // user reads, not via an export, so a change to it fails here on purpose.
@@ -35,13 +36,15 @@ function markup(
   props: Partial<Parameters<typeof DimensionChips>[0]> = {}
 ): string {
   return renderToStaticMarkup(
-    <DimensionChips
-      options={OPTIONS}
-      value={null}
-      onChange={() => {}}
-      copy={COPY}
-      {...props}
-    />
+    withIntl(
+      <DimensionChips
+        options={OPTIONS}
+        value={null}
+        onChange={() => {}}
+        copy={PURPOSE_COPY}
+        {...props}
+      />
+    )
   );
 }
 
@@ -117,7 +120,7 @@ describe("DimensionChips", () => {
     // which would press both.
     const everythingValue = values()[0];
     const stale = chips({ value: everythingValue });
-    expect(pressedOf(stale).map((c) => c.text)).toEqual([COPY.unknown]);
+    expect(pressedOf(stale).map((c) => c.text)).toEqual([WORDS.unknown]);
 
     for (const value of [
       null,
@@ -162,14 +165,14 @@ describe("DimensionChips", () => {
     expect(everything?.pressed).toBe(false);
 
     // ...and a pressed chip says so, in words, so it can be seen and cleared.
-    expect(pressedOf(stale).map((c) => c.text)).toEqual([COPY.unknown]);
+    expect(pressedOf(stale).map((c) => c.text)).toEqual([WORDS.unknown]);
 
     // The control: with a value that matches, no such chip exists at all.
     expect(chips({ value: "opt-1" }).map((c) => c.text)).not.toContain(
-      COPY.unknown
+      WORDS.unknown
     );
     expect(chips({ value: null }).map((c) => c.text)).not.toContain(
-      COPY.unknown
+      WORDS.unknown
     );
   });
 
@@ -183,7 +186,7 @@ describe("DimensionChips", () => {
     const label = html.match(
       new RegExp(`id="${labelledBy}"[^>]*>([^<]*)<`)
     )?.[1];
-    expect(label).toBe(COPY.question);
+    expect(label).toBe(WORDS.question);
 
     // And the group is one element wrapping the chips, with a group role.
     expect(html).toMatch(
@@ -218,7 +221,7 @@ describe("DimensionChips", () => {
       // An edit form opened on a row whose Purpose was since deleted: the
       // field holds a value, and the user must be able to see and clear it.
       const stale = chips({ required: true, value: "gone-from-the-list" });
-      expect(pressedOf(stale).map((c) => c.text)).toEqual([COPY.unknown]);
+      expect(pressedOf(stale).map((c) => c.text)).toEqual([WORDS.unknown]);
     });
   });
 

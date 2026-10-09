@@ -1,9 +1,13 @@
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { SubmitButton } from "@/components/submit-button";
+import { FieldError } from "@/components/field-error";
+import { useErrorMessage } from "@/hooks/use-error-message";
+import type { ActionError } from "@/i18n/keys";
 import type { ActionState } from "@/lib/types";
 import type {
   DimensionCopy,
@@ -18,9 +22,10 @@ import type {
  * category sat, and being told when that choice was illegal.
  *
  * Purposes and Funding Sources share this component but never share a screen.
- * Everything that differs between them arrives in `copy` and the two actions,
- * so the two dimensions cannot drift into behaving differently — while the
- * words on screen keep them plainly distinct.
+ * Everything that differs between them arrives in `copy` (whose `namespace`
+ * picks the words) and the two actions, so the two dimensions cannot drift
+ * into behaving differently — while the words on screen keep them plainly
+ * distinct.
  */
 export function DimensionForm({
   copy,
@@ -38,7 +43,9 @@ export function DimensionForm({
   onSuccess?: () => void;
 }) {
   const queryClient = useQueryClient();
-  const [serverError, setServerError] = useState<string | null>(null);
+  const [serverError, setServerError] = useState<ActionError | null>(null);
+  const t = useTranslations(copy.namespace);
+  const errorMessage = useErrorMessage();
 
   const form = useForm({
     defaultValues: { name: defaultValues?.name ?? "" },
@@ -71,34 +78,30 @@ export function DimensionForm({
       <form.Field name="name">
         {(field) => (
           <div className="space-y-1.5">
-            <Label htmlFor={field.name}>{copy.nameLabel}</Label>
+            <Label htmlFor={field.name}>{t("nameLabel")}</Label>
             <Input
               id={field.name}
               name={field.name}
-              placeholder={copy.namePlaceholder}
+              placeholder={t("question")}
               value={field.state.value}
               onBlur={field.handleBlur}
               onChange={(e) => field.handleChange(e.target.value)}
             />
-            {field.state.meta.errors[0] && (
-              <p className="text-sm text-destructive">
-                {field.state.meta.errors[0].message}
-              </p>
-            )}
+            <FieldError errors={field.state.meta.errors} />
           </div>
         )}
       </form.Field>
 
       {serverError && (
         <p role="alert" className="text-sm text-destructive">
-          {serverError}
+          {errorMessage(serverError)}
         </p>
       )}
 
       <form.Subscribe selector={(s) => s.isSubmitting}>
         {(isSubmitting) => (
           <SubmitButton className="w-full" isLoading={isSubmitting}>
-            {defaultValues ? "Cập nhật" : copy.createLabel}
+            {defaultValues ? "Cập nhật" : t("createLabel")}
           </SubmitButton>
         )}
       </form.Subscribe>

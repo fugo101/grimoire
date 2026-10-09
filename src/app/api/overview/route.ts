@@ -11,7 +11,7 @@ export async function GET(request: Request) {
     month: searchParams.get("month") ?? undefined,
   });
   if (!parsed.success) {
-    return Response.json({ error: "Tháng không hợp lệ." }, { status: 400 });
+    return Response.json({ error: "invalid_month" }, { status: 400 });
   }
 
   return Response.json(await getOverview(parsed.data.month));

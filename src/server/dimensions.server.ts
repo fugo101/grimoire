@@ -11,6 +11,7 @@ import {
   shareLinkPurposes,
   transactions,
 } from "@/lib/db/schema";
+import { actionError, msg, type MessageKey } from "@/i18n/keys";
 import type { ActionState } from "@/lib/types";
 
 /**
@@ -22,13 +23,14 @@ import type { ActionState } from "@/lib/types";
  *
  * They keep separate public surfaces on purpose (ADR-0001: the two dimensions
  * must not be confusable with one another); what is shared is the mechanism,
- * not the vocabulary. Every user-facing string comes from the `labels` below.
+ * not the vocabulary. Every user-facing message is a key in `errors` below,
+ * pointing into that dimension's own subtree of the catalog.
  */
 export type Dimension = {
   table: typeof purposes | typeof fundingSources;
   /** The `transactions` column that references this dimension. */
   reference: SQLiteColumn;
-  labels: { notFound: string; inUse: string; nameTaken: string };
+  errors: { notFound: MessageKey; inUse: MessageKey; nameTaken: MessageKey };
   /**
    * Rows outside `transactions` that reference this dimension and should go
    * with it on delete. Handed the transaction handle so its writes are
@@ -43,10 +45,10 @@ export type Dimension = {
 export const PURPOSE_DIMENSION: Dimension = {
   table: purposes,
   reference: transactions.purposeId,
-  labels: {
-    notFound: "Không tìm thấy mục đích chi.",
-    inUse: "Không thể xoá mục đích chi đã có giao dịch.",
-    nameTaken: "Đã có mục đích chi tên này.",
+  errors: {
+    notFound: msg("dimensions.purpose.errors.notFound"),
+    inUse: msg("dimensions.purpose.errors.inUse"),
+    nameTaken: msg("dimensions.purpose.errors.nameTaken"),
   },
   // A Purpose can sit in a share link's scope with no transactions of its own.
   // Removing it narrows that link rather than blocking the delete: the scope is
@@ -60,10 +62,10 @@ export const PURPOSE_DIMENSION: Dimension = {
 
 export const FUNDING_SOURCE_DIMENSION: Dimension = {
   table: fundingSources,
-  labels: {
-    notFound: "Không tìm thấy nguồn tiền.",
-    inUse: "Không thể xoá nguồn tiền đã có giao dịch.",
-    nameTaken: "Đã có nguồn tiền tên này.",
+  errors: {
+    notFound: msg("dimensions.fundingSource.errors.notFound"),
+    inUse: msg("dimensions.fundingSource.errors.inUse"),
+    nameTaken: msg("dimensions.fundingSource.errors.nameTaken"),
   },
   reference: transactions.fundingSourceId,
 };
@@ -141,7 +143,7 @@ function hasTransactions(
  * or the mobile form retrying, is all it takes for a transaction to be inserted
  * between "this Purpose has none" and the delete — and the loser gets a raw
  * `FOREIGN KEY constraint failed` thrown across the action boundary instead of
- * the sentence in `labels`. better-sqlite3 is synchronous, so closing the
+ * the message in `errors`. better-sqlite3 is synchronous, so closing the
  * window costs nothing: the whole check-and-act is one uninterrupted callback.
  */
 export async function createDimension(
@@ -150,7 +152,7 @@ export async function createDimension(
 ): Promise<ActionState> {
   return db.transaction((tx) => {
     if (nameTaken(tx, dimension, name)) {
-      return { success: false, error: dimension.labels.nameTaken };
+      return { success: false, error: actionError(dimension.errors.nameTaken) };
     }
     tx.insert(dimension.table).values({ name }).run();
     return { success: true };
@@ -164,11 +166,11 @@ export async function renameDimension(
 ): Promise<ActionState> {
   return db.transaction((tx) => {
     if (!exists(tx, dimension, id)) {
-      return { success: false, error: dimension.labels.notFound };
+      return { success: false, error: actionError(dimension.errors.notFound) };
     }
     // Excluding itself, so re-saving an unchanged name is not a collision.
     if (nameTaken(tx, dimension, name, id)) {
-      return { success: false, error: dimension.labels.nameTaken };
+      return { success: false, error: actionError(dimension.errors.nameTaken) };
     }
     tx.update(dimension.table)
       .set({ name })
@@ -196,10 +198,10 @@ export async function deleteDimension(
     // so an id from the wrong one is a real mistake that should say so instead
     // of reporting that it deleted something.
     if (!exists(tx, dimension, id)) {
-      return { success: false, error: dimension.labels.notFound };
+      return { success: false, error: actionError(dimension.errors.notFound) };
     }
     if (hasTransactions(tx, dimension, id)) {
-      return { success: false, error: dimension.labels.inUse };
+      return { success: false, error: actionError(dimension.errors.inUse) };
     }
 
     // Atomic with the guards above, and with each other: a detach that

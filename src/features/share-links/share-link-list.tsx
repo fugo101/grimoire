@@ -27,6 +27,7 @@ import {
   EmptyMedia,
   EmptyTitle,
 } from "@/components/ui/empty";
+import { useErrorMessage } from "@/hooks/use-error-message";
 import { toastError } from "@/lib/toast";
 import { CopyButton } from "@/components/copy-button";
 import { ShareLinkForm } from "@/features/share-links/share-link-form";
@@ -59,6 +60,7 @@ export function ShareLinkList({
     link: ShareLinkWithPurposes;
   } | null>(null);
   const queryClient = useQueryClient();
+  const errorMessage = useErrorMessage();
   const linksKey = shareLinksQueryOptions().queryKey;
 
   const invalidate = () =>
@@ -84,7 +86,7 @@ export function ShareLinkList({
     onSuccess: (result, _id, ctx) => {
       if (!result.success) {
         if (ctx?.previous) queryClient.setQueryData(linksKey, ctx.previous);
-        toastError(result.error);
+        toastError(errorMessage(result.error));
       }
     },
     onError: (_err, _id, ctx) => {
@@ -97,7 +99,7 @@ export function ShareLinkList({
     mutationFn: (id: string) => rotateShareLinkCode(id),
     onSuccess: async (result) => {
       if (!result.success) {
-        toastError(result.error);
+        toastError(errorMessage(result.error));
         return;
       }
       await invalidate();
@@ -108,7 +110,7 @@ export function ShareLinkList({
     mutationFn: (id: string) => deleteShareLink(id),
     onSuccess: async (result) => {
       if (!result.success) {
-        toastError(result.error);
+        toastError(errorMessage(result.error));
         return;
       }
       await invalidate();

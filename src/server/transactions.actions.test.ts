@@ -74,7 +74,7 @@ describe("createTransaction", () => {
     );
 
     expect(result.success).toBe(false);
-    expect(result.error).toMatch(/không tìm thấy mục đích chi/i);
+    expect(result.error).toEqual({ key: "dimensions.purpose.errors.notFound" });
     expect(await allRows()).toHaveLength(SEEDED_ROWS);
   });
 
@@ -84,7 +84,9 @@ describe("createTransaction", () => {
     );
 
     expect(result.success).toBe(false);
-    expect(result.error).toMatch(/không tìm thấy nguồn tiền/i);
+    expect(result.error).toEqual({
+      key: "dimensions.fundingSource.errors.notFound",
+    });
     expect(await allRows()).toHaveLength(SEEDED_ROWS);
   });
 
@@ -94,12 +96,16 @@ describe("createTransaction", () => {
     const badPot = await createTransaction(
       input({ purposeId: PURPOSE.z, fundingSourceId: "no-such-pot" })
     );
-    expect(badPot.error).toMatch(/nguồn tiền/i);
+    expect(badPot.error).toEqual({
+      key: "dimensions.fundingSource.errors.notFound",
+    });
 
     const badPurpose = await createTransaction(
       input({ purposeId: "no-such-purpose", fundingSourceId: FUNDING.b })
     );
-    expect(badPurpose.error).toMatch(/mục đích chi/i);
+    expect(badPurpose.error).toEqual({
+      key: "dimensions.purpose.errors.notFound",
+    });
 
     // The control: that same pair of valid halves together is accepted.
     await expect(
@@ -115,7 +121,7 @@ describe("createTransaction", () => {
     const result = await createTransaction(input());
 
     expect(result.success).toBe(false);
-    expect(result.error).toMatch(/đăng nhập/i);
+    expect(result.error).toEqual({ key: "errors.auth.sessionExpired" });
     expect(await allRows()).toHaveLength(SEEDED_ROWS);
 
     // The control: the identical input succeeds once a session is present, so

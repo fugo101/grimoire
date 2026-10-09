@@ -17,13 +17,13 @@ export async function GET(request: Request) {
     fundingSource: searchParams.get("fundingSource") ?? undefined,
   });
   if (!parsed.success) {
-    return Response.json({ error: "Yêu cầu không hợp lệ." }, { status: 400 });
+    return Response.json({ error: "invalid_request" }, { status: 400 });
   }
 
   const { code, ...search } = parsed.data;
   const report = await getPublicReport({ ...search, code });
   if (!report) {
-    return Response.json({ error: "Không tìm thấy báo cáo." }, { status: 404 });
+    return Response.json({ error: "not_found" }, { status: 404 });
   }
   return Response.json(report);
 }

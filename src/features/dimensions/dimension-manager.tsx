@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   DimensionList,
@@ -35,6 +36,8 @@ export function DimensionManager({
   update: (id: string, input: { name: string }) => Promise<ActionState>;
   remove: (id: string) => Promise<ActionState>;
 }) {
+  const t = useTranslations(copy.namespace);
+
   return (
     <div className="space-y-6">
       {/*
@@ -47,7 +50,7 @@ export function DimensionManager({
        */}
       <Card>
         <CardHeader>
-          <CardTitle>{copy.createLabel}</CardTitle>
+          <CardTitle>{t("createLabel")}</CardTitle>
         </CardHeader>
         <CardContent>
           <DimensionForm
@@ -61,7 +64,7 @@ export function DimensionManager({
 
       <section className="space-y-3">
         <h2 className="font-semibold tracking-tight">
-          {copy.plural}
+          {t("plural")}
           {entries.length > 0 && (
             <span className="ml-2 font-normal text-muted-foreground tabular-nums">
               {entries.length}

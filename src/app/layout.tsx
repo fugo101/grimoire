@@ -1,5 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { cookies, headers } from "next/headers";
+import { NextIntlClientProvider } from "next-intl";
+import { getLocale } from "next-intl/server";
 import "@/styles/app.css";
 import {
   DEFAULT_THEME_PREFERENCE,
@@ -58,6 +60,7 @@ export default async function RootLayout({
    * `x-nonce` for exactly this one tag.
    */
   const nonce = (await headers()).get("x-nonce") ?? undefined;
+  const locale = await getLocale();
   const raw = cookieStore.get(THEME_COOKIE_NAME)?.value;
   const themePreference = isThemePreference(raw)
     ? raw
@@ -75,7 +78,7 @@ export default async function RootLayout({
      * only, not its subtree.
      */
     <html
-      lang="vi"
+      lang={locale}
       className={themePreference === "dark" ? "dark" : undefined}
       suppressHydrationWarning
     >
@@ -88,7 +91,12 @@ export default async function RootLayout({
         />
       </head>
       <body className="antialiased">
-        <Providers themePreference={themePreference}>{children}</Providers>
+        {/* Rendered here, in a Server Component, so it inherits the locale and
+            messages from `src/i18n/request.ts` without either being passed
+            through `Providers` as props. */}
+        <NextIntlClientProvider>
+          <Providers themePreference={themePreference}>{children}</Providers>
+        </NextIntlClientProvider>
       </body>
     </html>
   );

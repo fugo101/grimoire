@@ -1,6 +1,7 @@
 import "server-only";
 import { cookies } from "next/headers";
 import { SESSION_COOKIE_NAME, verifyToken } from "@/lib/auth";
+import { actionError } from "@/i18n/keys";
 import type { ActionState } from "@/lib/types";
 
 /**
@@ -65,7 +66,7 @@ export async function requireAuthForAction(): Promise<ActionState | null> {
     if (err instanceof UnauthorizedError) {
       return {
         success: false,
-        error: "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại.",
+        error: actionError("errors.auth.sessionExpired"),
       };
     }
     throw err;

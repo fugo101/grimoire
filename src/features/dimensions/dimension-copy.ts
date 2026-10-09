@@ -1,15 +1,37 @@
+import type { Messages, NestedKeyOf } from "next-intl";
 import type { z } from "zod";
 
 /**
- * Every user-facing word that differs between the two dimensions, in one place.
+ * Everything that differs between the two dimensions, in one place.
  *
  * The management screens, the form, the filters and the list are shared
  * components — the mechanism is identical — so this is what keeps a Purpose
  * screen from ever saying "nguồn tiền" and vice versa. ADR-0001's whole point
  * is that the two must not be confusable; sharing the code and separating the
- * words is how that survives someone editing one of them later. A word that is
- * the *same* for both (the filters' "Tất cả") does not belong here and lives
- * with the component that renders it.
+ * words is how that survives someone editing one of them later.
+ *
+ * The words themselves live in the catalog, one subtree per dimension
+ * (`dimensions.purpose`, `dimensions.fundingSource`), and `namespace` says
+ * which. A word that is the *same* for both (the filters' "everything" chip)
+ * does not belong in either subtree and lives with the component that renders
+ * it. What each key is for:
+ *
+ * - `plural` — headings and counts.
+ * - `question` — the prompt wherever the user is *choosing* one of these (the
+ *   filter rows and the transaction form) and, word for word, the placeholder
+ *   when *naming* one on the management screen: "what is the money for?" is
+ *   the right hint for both. A question, not a noun: the person this app is
+ *   for parses it faster than "Purpose", and the screen should say what to do
+ *   rather than name an abstraction. Headings and table columns keep the
+ *   short noun (`plural`), because there the word labels a thing rather than
+ *   asks for a decision.
+ * - `unknown` — the chip shown when a filter names something that no longer
+ *   exists, an id left in a URL after the thing was renamed or deleted.
+ *   Distinct from "everything" on purpose: without it, a filter matching zero
+ *   rows would read exactly like no filter at all.
+ * - `required` / `nameRequired` — the schemas' messages for an unanswered
+ *   choice and a blank name.
+ * - `errors.*` — what the shared actions in `dimensions.server.ts` answer.
  *
  * `queryKey` is the bare cache key for this dimension's own list, matching
  * `query-options.ts`; `invalidates` is every *other* key a write to this
@@ -19,38 +41,29 @@ export type DimensionCopy = {
   queryKey: "purposes" | "fundingSources";
   /** Bare cache keys a create, rename or delete here invalidates. */
   invalidates: readonly string[];
-  /** Plural, for headings and counts. */
-  plural: string;
-  /**
-   * The prompt wherever the user is *choosing* one of these — the filter rows
-   * and the transaction form — and, word for word, the placeholder when
-   * *naming* one on the management screen (`namePlaceholder`): "what is the
-   * money for?" is the right hint for both. A question, not a noun: the person
-   * this app is for parses it faster than "Purpose", and the screen should say
-   * what to do rather than name an abstraction. Headings and table columns
-   * keep the short noun (`plural`), because there the word labels a thing
-   * rather than asks for a decision.
-   */
-  question: string;
-  /**
-   * The chip shown when a filter names something that no longer exists — an
-   * id left in a URL after the thing was renamed or deleted. Distinct from
-   * the chips' "Tất cả" on purpose: without it, a filter matching zero rows
-   * would read exactly like no filter at all.
-   */
-  unknown: string;
-  nameLabel: string;
-  namePlaceholder: string;
-  createLabel: string;
-  editTitle: string;
-  deleteTitle: string;
-  deleteConfirm: (name: string) => string;
-  emptyTitle: string;
-  emptyDescription: string;
+  /** This dimension's subtree of the catalog. */
+  namespace: DimensionNamespace;
 };
 
-const PURPOSE_QUESTION = "Tiền dùng để làm gì?";
-const FUNDING_SOURCE_QUESTION = "Tiền lấy từ đâu?";
+export type DimensionNamespace =
+  "dimensions.purpose" | "dimensions.fundingSource";
+
+/**
+ * The two subtrees must carry exactly the same keys. The components translate
+ * through whichever `namespace` they were handed, so a key present for one
+ * dimension and missing for the other is a word one screen shows and its twin
+ * cannot — the drift ADR-0001 is about, moved from code into the catalog. This
+ * fails to compile the moment the key sets differ, in either direction.
+ */
+type PurposeKeys = NestedKeyOf<Messages["dimensions"]["purpose"]>;
+type FundingSourceKeys = NestedKeyOf<Messages["dimensions"]["fundingSource"]>;
+type SameKeys<A, B> = [A] extends [B]
+  ? [B] extends [A]
+    ? true
+    : false
+  : false;
+export const DIMENSION_KEYS_MATCH: SameKeys<PurposeKeys, FundingSourceKeys> =
+  true;
 
 export const PURPOSE_COPY: DimensionCopy = {
   queryKey: "purposes",
@@ -61,17 +74,7 @@ export const PURPOSE_COPY: DimensionCopy = {
    * Purpose that no longer exists, or the name it used to have.
    */
   invalidates: ["transactions", "overview", "shareLinks"],
-  plural: "Mục đích chi",
-  question: PURPOSE_QUESTION,
-  unknown: "Mục đích chi không còn tồn tại",
-  nameLabel: "Tên mục đích chi",
-  namePlaceholder: PURPOSE_QUESTION,
-  createLabel: "Thêm mục đích chi",
-  editTitle: "Sửa mục đích chi",
-  deleteTitle: "Xoá mục đích chi",
-  deleteConfirm: (name) => `Bạn có chắc chắn muốn xoá mục đích chi "${name}"?`,
-  emptyTitle: "Chưa có mục đích chi",
-  emptyDescription: "Tạo mục đích chi đầu tiên để bắt đầu ghi chi tiêu.",
+  namespace: "dimensions.purpose",
 };
 
 export const FUNDING_SOURCE_COPY: DimensionCopy = {
@@ -79,17 +82,7 @@ export const FUNDING_SOURCE_COPY: DimensionCopy = {
   // No `shareLinks`: a link's scope is one-dimensional (ADR-0002), so nothing
   // about a Funding Source can change what a link shows in that list.
   invalidates: ["transactions", "overview"],
-  plural: "Nguồn tiền",
-  question: FUNDING_SOURCE_QUESTION,
-  unknown: "Nguồn tiền không còn tồn tại",
-  nameLabel: "Tên nguồn tiền",
-  namePlaceholder: FUNDING_SOURCE_QUESTION,
-  createLabel: "Thêm nguồn tiền",
-  editTitle: "Sửa nguồn tiền",
-  deleteTitle: "Xoá nguồn tiền",
-  deleteConfirm: (name) => `Bạn có chắc chắn muốn xoá nguồn tiền "${name}"?`,
-  emptyTitle: "Chưa có nguồn tiền",
-  emptyDescription: "Tạo nguồn tiền đầu tiên để bắt đầu ghi chi tiêu.",
+  namespace: "dimensions.fundingSource",
 };
 
 /**

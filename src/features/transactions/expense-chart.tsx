@@ -27,7 +27,7 @@ import {
   type Granularity,
   groupTransactionsByGranularity,
 } from "@/lib/chart-utils";
-import { formatCompactVND, formatVND } from "@/lib/format";
+import { useFormatters } from "@/hooks/use-formatters";
 
 const chartConfig = {
   total: {
@@ -63,6 +63,7 @@ export function ExpenseChart({
   transactions,
   collapsible = false,
 }: ExpenseChartProps) {
+  const { formatCompactVND, formatVND } = useFormatters();
   const [granularity, setGranularity] = useState<Granularity>("week");
   const [open, setOpen] = useState(!collapsible);
   const isDesktop = useMediaQuery("(min-width: 640px)");

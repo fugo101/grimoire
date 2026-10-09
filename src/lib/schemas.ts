@@ -1,4 +1,15 @@
 import { z } from "zod";
+import { msg } from "@/i18n/keys";
+
+/*
+ * Every message below is a catalog key, not a sentence: these schemas are
+ * module-level and shared by TanStack Form, the Server Actions and the Route
+ * Handlers, none of which has a translator in scope here. The form translates
+ * the key where it displays it (`<FieldError>`). ADR-0004 has the alternatives
+ * and why they lost. A constraint a user can trip must carry a key — without
+ * one Zod's English default reaches `<FieldError>`, which can only fall back
+ * to a generic message.
+ */
 
 /**
  * A `YYYY-MM` month key.
@@ -15,7 +26,7 @@ import { z } from "zod";
  */
 export const monthSchema = z
   .string()
-  .regex(/^\d{4}-(0[1-9]|1[0-2])$/, "Tháng phải có dạng YYYY-MM");
+  .regex(/^\d{4}-(0[1-9]|1[0-2])$/, msg("validation.monthFormat"));
 
 /**
  * The `fromMonth` / `toMonth` pair, as a server function accepts it.
@@ -52,11 +63,11 @@ export const monthRangeSearchSchema = z.object({
  * roll-up cannot account for them.
  */
 export const transactionSchema = z.object({
-  amount: z.number().positive("Số tiền phải lớn hơn 0"),
-  note: z.string().max(500),
-  date: z.string().min(1, "Vui lòng chọn thời gian"),
-  purposeId: z.string().min(1, "Vui lòng chọn mục đích chi"),
-  fundingSourceId: z.string().min(1, "Vui lòng chọn nguồn tiền"),
+  amount: z.number().positive(msg("validation.amountPositive")),
+  note: z.string().max(500, msg("validation.noteTooLong")),
+  date: z.string().min(1, msg("validation.dateRequired")),
+  purposeId: z.string().min(1, msg("dimensions.purpose.required")),
+  fundingSourceId: z.string().min(1, msg("dimensions.fundingSource.required")),
 });
 
 export type TransactionInput = z.infer<typeof transactionSchema>;
@@ -65,17 +76,26 @@ export type TransactionInput = z.infer<typeof transactionSchema>;
  * The two dimensions carry the same shape — a name, and nothing else. They get
  * their own schemas anyway, rather than one shared `dimensionSchema`, because
  * the validation message is the whole user-facing difference between them and
- * a single schema would have to pick one word or say neither.
+ * a single schema would have to pick one word or say neither. The length limit
+ * is the same for both, so its message is the shared `validation.nameTooLong`.
  */
 export const purposeSchema = z.object({
   // Trimmed before the length check, so three spaces is an empty name rather
   // than a valid one that renders as a blank row in every list and an
   // unlabelled option in every picker.
-  name: z.string().trim().min(1, "Vui lòng nhập tên mục đích chi").max(100),
+  name: z
+    .string()
+    .trim()
+    .min(1, msg("dimensions.purpose.nameRequired"))
+    .max(100, msg("validation.nameTooLong")),
 });
 
 export const fundingSourceSchema = z.object({
-  name: z.string().trim().min(1, "Vui lòng nhập tên nguồn tiền").max(100),
+  name: z
+    .string()
+    .trim()
+    .min(1, msg("dimensions.fundingSource.nameRequired"))
+    .max(100, msg("validation.nameTooLong")),
 });
 
 /**
@@ -107,24 +127,23 @@ export const SHARE_CODE_PATTERN = /^[a-zA-Z0-9-]{8,32}$/;
 export const SHARE_CODE_SHAPE = /^[a-zA-Z0-9-]{1,32}$/;
 
 export const shareLinkSchema = z.object({
-  name: z.string().max(100).optional(),
+  name: z.string().max(100, msg("validation.nameTooLong")).optional(),
   code: z
     .string()
-    .regex(
-      SHARE_CODE_PATTERN,
-      "Mã chỉ gồm a-z, A-Z, 0-9, dấu gạch ngang (8-32 ký tự)"
-    )
+    .regex(SHARE_CODE_PATTERN, msg("validation.shareCodeFormat"))
     .optional()
     .or(z.literal("")),
   // Purposes only — a link's scope is one-dimensional by decision (ADR-0002).
-  purposeIds: z.array(z.string()).min(1, "Chọn ít nhất 1 mục đích chi"),
+  purposeIds: z
+    .array(z.string())
+    .min(1, msg("validation.shareLinkPurposesRequired")),
 });
 
 export type ShareLinkFormValues = z.input<typeof shareLinkSchema>;
 
 export const loginSchema = z.object({
-  username: z.string().min(1, "Vui lòng nhập tên đăng nhập"),
-  password: z.string().min(1, "Vui lòng nhập mật khẩu"),
+  username: z.string().min(1, msg("validation.usernameRequired")),
+  password: z.string().min(1, msg("validation.passwordRequired")),
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;

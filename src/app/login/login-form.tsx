@@ -13,15 +13,19 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { SubmitButton } from "@/components/submit-button";
+import { FieldError } from "@/components/field-error";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { useThemePreference } from "@/app/theme-context";
+import { useErrorMessage } from "@/hooks/use-error-message";
+import type { ActionError } from "@/i18n/keys";
 import { loginSchema } from "@/lib/schemas";
 import { login } from "@/server/auth.actions";
 
 export function LoginForm() {
   const themePreference = useThemePreference();
   const router = useRouter();
-  const [serverError, setServerError] = useState<string | null>(null);
+  const [serverError, setServerError] = useState<ActionError | null>(null);
+  const errorMessage = useErrorMessage();
 
   const form = useForm({
     defaultValues: { username: "", password: "" },
@@ -76,11 +80,7 @@ export function LoginForm() {
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
                   />
-                  {field.state.meta.errors[0] && (
-                    <p className="text-sm text-destructive">
-                      {field.state.meta.errors[0].message}
-                    </p>
-                  )}
+                  <FieldError errors={field.state.meta.errors} />
                 </div>
               )}
             </form.Field>
@@ -98,17 +98,15 @@ export function LoginForm() {
                     onBlur={field.handleBlur}
                     onChange={(e) => field.handleChange(e.target.value)}
                   />
-                  {field.state.meta.errors[0] && (
-                    <p className="text-sm text-destructive">
-                      {field.state.meta.errors[0].message}
-                    </p>
-                  )}
+                  <FieldError errors={field.state.meta.errors} />
                 </div>
               )}
             </form.Field>
 
             {serverError && (
-              <p className="text-sm text-destructive">{serverError}</p>
+              <p className="text-sm text-destructive">
+                {errorMessage(serverError)}
+              </p>
             )}
 
             <form.Subscribe selector={(s) => s.isSubmitting}>
