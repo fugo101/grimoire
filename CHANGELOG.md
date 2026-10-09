@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.5.0](https://github.com/fugo101/grimoire/compare/v2.4.1...v2.5.0) (2026-10-09)
+
+
+### 🚀 Features
+
+* **security:** rate-limit login and fail fast on bad credentials ([#152](https://github.com/fugo101/grimoire/issues/152)) ([bc3452b](https://github.com/fugo101/grimoire/commit/bc3452b0f418aa6248685a41319862fed7e6c3fc))
+
 ## [2.4.1](https://github.com/fugo101/grimoire/compare/v2.4.0...v2.4.1) (2026-10-09)
 
 
