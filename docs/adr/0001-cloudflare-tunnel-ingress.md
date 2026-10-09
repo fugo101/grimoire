@@ -39,7 +39,9 @@ The public hostname is **`grimoire.fudio101.com`**.
 
 Consequences that follow from this, and that other work is entitled to rely on:
 
-- **`CF-Connecting-IP` is the trustworthy client IP.** Cloudflare sets it as a single value; `cloudflared` forwards it; Traefik normalises only the `X-Forwarded-*` family and does not touch this header name. Anything IP-based (rate limiting, in particular) should read it, falling back to the rightmost `X-Forwarded-For` entry only when it is absent.
+- **`CF-Connecting-IP` is the trustworthy client IP.** Cloudflare sets it as a single value; `cloudflared` forwards it; Traefik normalises only the `X-Forwarded-*` family and does not touch this header name. Anything IP-based (rate limiting, in particular) should read it — and only it.
+
+  *Amended 2026-10-09:* this originally said to fall back to the rightmost `X-Forwarded-For` entry when the header is absent. Behind this chain that entry is always an internal hop (`cloudflared` or Traefik), so the fallback would bucket every visitor together — the same outcome as one shared "unknown" bucket, with more parsing to get wrong. The login rate limit (#112) reads `CF-Connecting-IP` alone.
 - **That trust is conditional on the origin staying unreachable.** Header trust is only as good as the guarantee that every request came through Cloudflare. Publishing a host port, or exposing the container on another network, silently invalidates it — a caller reaching the origin directly controls every header, since Next only assigns them when absent and never overwrites.
 - **Response headers must be verified against the real hostname.** Cloudflare sits between the origin and the browser and can inject, alter, or minify. `curl -I` against localhost proves what the app emitted, not what a visitor receives.
 - **`docker-compose.yml` in this repo is not the deploy artifact.** Production is created from a Dockge-managed stack on the VPS. Tracked in issue #125.

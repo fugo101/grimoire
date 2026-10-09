@@ -1,10 +1,24 @@
-import { assertAuthSecret } from "@/lib/auth";
+import { assertAdminCredentials, assertAuthSecret } from "@/lib/auth";
 import { runMigrations } from "@/lib/db/migrate";
 import { closeDatabase } from "@/lib/db";
 
 // Runs once, as a module side effect, the first (and only) time
 // instrumentation.ts dynamically imports this file.
-assertAuthSecret();
+//
+// A throw here does not stop the server: Next logs "Failed to prepare server"
+// and keeps listening, answering every request with a 500 — the misconfigured
+// server stays up, looking like an app bug rather than a deployment one.
+// Exiting is what makes these checks fail fast; under `restart: unless-stopped`
+// that shows up as a visible crash loop, the right signal for a config error.
+try {
+  assertAuthSecret();
+  assertAdminCredentials();
+} catch (err) {
+  console.error(
+    `Refusing to start: ${err instanceof Error ? err.message : String(err)}`
+  );
+  process.exit(1);
+}
 runMigrations();
 
 /**

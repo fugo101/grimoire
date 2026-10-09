@@ -43,8 +43,10 @@ pnpm run dev                 # migrations apply automatically on startup
 | Variable         | Description                 | Default     |
 | ---------------- | --------------------------- | ----------- |
 | `ADMIN_USERNAME` | Login username              | `admin`     |
-| `ADMIN_PASSWORD` | Login password              | `changeme`  |
+| `ADMIN_PASSWORD` | Login password              | —           |
 | `AUTH_SECRET`    | JWT signing key (32+ chars) | —           |
+
+The server refuses to start if `ADMIN_PASSWORD` is empty or a well-known default (`changeme`, `password`, `admin`, `123456`), or if `AUTH_SECRET` is shorter than 32 characters or still the old `.env.example` sample. Generate a secret with `openssl rand -base64 32`.
 | `DATABASE_URL`   | SQLite database path        | `./data.db` |
 
 ## Scripts
@@ -73,6 +75,7 @@ browser → Cloudflare edge → cloudflared → Traefik → grimoire:3000
 `cloudflared` runs as a container on the same `traefik_network` Docker network and dials out, so **no port is published on the host** — there is no direct route to the origin. Two things follow, and both matter when changing anything security-related:
 
 - **`CF-Connecting-IP` is the client IP to trust.** Cloudflare sets it as a single value and it survives the hops intact. This holds *only* while the origin stays unreachable directly; publishing a host port would let a caller set that header themselves.
+- **Login is rate-limited on it.** 10 failed attempts from one client (one IPv4 address, or one IPv6 /64) lock that client out for the rest of a 15-minute window counted from its first failure. Nothing else is read: behind the tunnel the rightmost `X-Forwarded-For` entry is always an internal hop, so a request without `CF-Connecting-IP` — local development, or a changed ingress — falls into one shared bucket instead. The counters live in memory and reset when the container restarts.
 - **Verify response headers against the real hostname.** Cloudflare can alter or minify what it forwards, so `curl -I` against localhost shows what the app emitted, not what a visitor gets.
 
 The full record, including what is verified and what is still inferred, is in [`docs/adr/0001-cloudflare-tunnel-ingress.md`](docs/adr/0001-cloudflare-tunnel-ingress.md).
@@ -104,8 +107,8 @@ volume, a connection closed by a botched shutdown), which a plain port check wou
 # Using pre-built image
 docker run -d -p 3000:3000 \
   -e ADMIN_USERNAME=admin \
-  -e ADMIN_PASSWORD=changeme \
-  -e AUTH_SECRET=your-secret-key-at-least-32-chars \
+  -e ADMIN_PASSWORD="<a real password>" \
+  -e AUTH_SECRET="$(openssl rand -base64 32)" \
   -v grimoire-data:/app/data \
   ghcr.io/fugo101/grimoire:latest
 
