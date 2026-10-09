@@ -35,3 +35,13 @@ _Avoid_: Net spend, real cost, out-of-pocket
 **Covered share**:
 The part of a Gross cost drawn from Funding Sources supplied by someone else — a reimbursement or a gift.
 _Avoid_: Reimbursed portion, discount
+
+### Sharing
+
+**Share Link**:
+A code that grants read-only access, without signing in, to the Transactions of a set of Purposes. Its scope is Purposes only — never Funding Sources (ADR-0002).
+_Avoid_: Public link, share code
+
+**Public Report**:
+What a Share Link's reader sees: the Transactions within the link's scope. Opening it always shows current data — it is never a snapshot frozen when the link was made, nor a cached copy that lags behind the admin's changes.
+_Avoid_: Shared report, snapshot
