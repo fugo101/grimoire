@@ -1,5 +1,18 @@
 # Changelog
 
+## [2.6.0](https://github.com/fugo101/grimoire/compare/v2.5.0...v2.6.0) (2026-10-09)
+
+
+### 🚀 Features
+
+* **i18n:** move remaining UI strings into the catalog ([#158](https://github.com/fugo101/grimoire/issues/158)) ([0411661](https://github.com/fugo101/grimoire/commit/0411661efa5fe283df3c3234347eab4a1eab8f7a))
+* **i18n:** set up next-intl and make messages catalog keys ([#157](https://github.com/fugo101/grimoire/issues/157)) ([53df8fb](https://github.com/fugo101/grimoire/commit/53df8fbb60a315c3acf87328e3d81b42879ebbb6))
+
+
+### 📚 Documentation
+
+* record why cacheComponents stays off ([#154](https://github.com/fugo101/grimoire/issues/154)) ([0b33dff](https://github.com/fugo101/grimoire/commit/0b33dfff22994c914c3e0a95b51526fec4a614b5))
+
 ## [2.5.0](https://github.com/fugo101/grimoire/compare/v2.4.1...v2.5.0) (2026-10-09)
 
 
