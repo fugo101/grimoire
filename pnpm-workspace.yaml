@@ -6,4 +6,15 @@ allowBuilds:
 overrides:
   postcss@<8.5.18: ">=8.5.18"
   esbuild@<0.25.0: ">=0.25.0"
-  sharp@<0.35.0: ">=0.35.0"
+  sharp@<0.35.5: ">=0.35.5"
+  source-map-js@<1.2.2: ">=1.2.2"
+  "@modelcontextprotocol/sdk@<1.31.0": ">=1.31.0"
+
+auditConfig:
+  ignoreGhsas:
+    # braces <=3.0.3 (deep-nesting DoS). No patched release exists yet — 3.0.3
+    # is the latest on npm — so neither a bump nor an override can clear it.
+    # Only reached through lint/CLI tooling (@next/eslint-plugin-next, shadcn)
+    # via fast-glob > micromatch, never at runtime. Remove this once braces
+    # ships a fix and add a `braces@<3.0.4` override in its place.
+    - GHSA-vfj7-8cjw-p6xm
