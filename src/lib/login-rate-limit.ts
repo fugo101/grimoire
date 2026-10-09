@@ -1,5 +1,5 @@
 /** Failed logins one client may make inside a window before being refused. */
-export const MAX_LOGIN_FAILURES = 10;
+const MAX_LOGIN_FAILURES = 10;
 
 /** How long a window lasts, counted from the first failure in it. */
 export const LOGIN_WINDOW_MS = 15 * 60_000;
@@ -36,7 +36,7 @@ const globalRef = globalThis as typeof globalThis & {
 
 type Options = { now?: number; store?: LoginAttemptStore };
 
-function resolve(opts: Options | undefined) {
+function withDefaults(opts: Options | undefined) {
   return {
     now: opts?.now ?? Date.now(),
     store:
@@ -45,7 +45,15 @@ function resolve(opts: Options | undefined) {
   };
 }
 
-/** The key's record if its window is still open, otherwise nothing. */
+function isExpired(record: AttemptRecord, now: number): boolean {
+  // Past the window — or the clock stepped backwards, which leaves the record
+  // unanchored. Either way it no longer describes a window.
+  return (
+    now < record.windowStart || now >= record.windowStart + LOGIN_WINDOW_MS
+  );
+}
+
+/** The key's record if its window is still open; an expired one is dropped. */
 function liveRecord(
   store: LoginAttemptStore,
   key: string,
@@ -53,9 +61,7 @@ function liveRecord(
 ): AttemptRecord | undefined {
   const record = store.get(key);
   if (!record) return undefined;
-  if (now < record.windowStart || now >= record.windowStart + LOGIN_WINDOW_MS) {
-    // Expired — or the clock stepped backwards, which leaves the record
-    // unanchored. Either way it no longer describes a window.
+  if (isExpired(record, now)) {
     store.delete(key);
     return undefined;
   }
@@ -79,7 +85,9 @@ function touch(store: LoginAttemptStore, key: string, record: AttemptRecord) {
  */
 function makeRoom(store: LoginAttemptStore, now: number) {
   if (store.size < MAX_TRACKED_KEYS) return;
-  for (const key of [...store.keys()]) liveRecord(store, key, now);
+  for (const [key, record] of store) {
+    if (isExpired(record, now)) store.delete(key);
+  }
   while (store.size >= MAX_TRACKED_KEYS) {
     const oldest = store.keys().next().value;
     if (oldest === undefined) break;
@@ -91,7 +99,7 @@ export function checkLoginRateLimit(
   key: string,
   opts?: Options
 ): { allowed: true } | { allowed: false; retryAfterMs: number } {
-  const { now, store } = resolve(opts);
+  const { now, store } = withDefaults(opts);
   const record = liveRecord(store, key, now);
   if (!record || record.count < MAX_LOGIN_FAILURES) return { allowed: true };
   // Refused, but still seen: move it to the most-recent end, or a flood of
@@ -104,7 +112,7 @@ export function checkLoginRateLimit(
 }
 
 export function recordLoginFailure(key: string, opts?: Options): void {
-  const { now, store } = resolve(opts);
+  const { now, store } = withDefaults(opts);
   const record = liveRecord(store, key, now);
   if (!record) makeRoom(store, now);
   touch(
@@ -118,5 +126,5 @@ export function recordLoginFailure(key: string, opts?: Options): void {
 
 /** A successful login wipes the client's slate, not just its current window. */
 export function clearLoginAttempts(key: string, opts?: Options): void {
-  resolve(opts).store.delete(key);
+  withDefaults(opts).store.delete(key);
 }

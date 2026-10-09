@@ -13,7 +13,7 @@ import {
 } from "@/lib/login-rate-limit";
 import { loginSchema, type LoginInput } from "@/lib/schemas";
 import { COOKIE_OPTIONS, requireAuthForAction } from "@/server/auth-guard";
-import { getClientIp } from "@/server/request-ip";
+import { getClientKey } from "@/server/request-ip";
 import type { ActionState } from "@/lib/types";
 
 /**
@@ -26,9 +26,9 @@ import type { ActionState } from "@/lib/types";
  * is what makes it a limit rather than a suggestion.
  */
 export async function login(input: LoginInput): Promise<ActionState> {
-  const clientIp = await getClientIp();
+  const client = await getClientKey();
 
-  const limit = checkLoginRateLimit(clientIp);
+  const limit = checkLoginRateLimit(client);
   if (!limit.allowed) {
     const minutes = Math.max(1, Math.ceil(limit.retryAfterMs / 60_000));
     return {
@@ -47,13 +47,13 @@ export async function login(input: LoginInput): Promise<ActionState> {
     !parsed.success ||
     !validateCredentials(parsed.data.username, parsed.data.password)
   ) {
-    recordLoginFailure(clientIp);
+    recordLoginFailure(client);
     return { success: false, error: "Sai tên đăng nhập hoặc mật khẩu." };
   }
 
   // Cleared before the session is minted: a crash in between leaves a stale
   // failure count, not a stale lockout.
-  clearLoginAttempts(clientIp);
+  clearLoginAttempts(client);
   (await cookies()).set(
     SESSION_COOKIE_NAME,
     await createToken(),

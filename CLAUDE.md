@@ -96,7 +96,7 @@ Two distinct layers, and the distinction matters:
 
 `AUTH_SECRET` must be at least 32 characters and must not be the old `.env.example` sample; `assertAuthSecret()` runs from `src/instrumentation.node.ts` so a weak secret fails at startup rather than at the first login. `assertAdminCredentials()` runs beside it and refuses to boot with an empty `ADMIN_USERNAME`/`ADMIN_PASSWORD` or a shipped-default password.
 
-`login` is rate-limited per client: `src/lib/client-ip.ts` turns `CF-Connecting-IP` into a key (IPv6 by /64, nothing else read — see ADR-0001), `src/lib/login-rate-limit.ts` holds the in-memory counters, and `src/server/request-ip.ts` is the only part that touches `headers()`. The limit runs before the input is parsed, so a malformed payload cannot skip it.
+`login` is rate-limited per client: `src/lib/client-ip.ts` turns `CF-Connecting-IP` into a key (IPv6 by /64, nothing else read — see `docs/adr/0001-cloudflare-tunnel-ingress.md`), `src/lib/login-rate-limit.ts` holds the in-memory counters, and `src/server/request-ip.ts` is the only part that touches `headers()`. The limit runs before the input is parsed, so a malformed payload cannot skip it.
 
 CSRF is layered per transport: Server Actions get Next's built-in Origin/Host check for free. Route Handler reads get an explicit one via `guardApiRequest()` in `src/server/http-auth.ts`, on top of the auth check.
 

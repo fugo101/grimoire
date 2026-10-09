@@ -45,9 +45,9 @@ pnpm run dev                 # migrations apply automatically on startup
 | `ADMIN_USERNAME` | Login username              | `admin`     |
 | `ADMIN_PASSWORD` | Login password              | —           |
 | `AUTH_SECRET`    | JWT signing key (32+ chars) | —           |
+| `DATABASE_URL`   | SQLite database path        | `./data.db` |
 
 The server refuses to start if `ADMIN_PASSWORD` is empty or a well-known default (`changeme`, `password`, `admin`, `123456`), or if `AUTH_SECRET` is shorter than 32 characters or still the old `.env.example` sample. Generate a secret with `openssl rand -base64 32`.
-| `DATABASE_URL`   | SQLite database path        | `./data.db` |
 
 ## Scripts
 
@@ -195,5 +195,5 @@ src/
 │   ├── types.ts                   # Shared TypeScript types
 │   ├── auth.ts                    # JWT session utilities
 │   └── format.ts                  # Currency & datetime formatters
-└── instrumentation.ts, instrumentation.node.ts   # Startup migrations, AUTH_SECRET check
+└── instrumentation.ts, instrumentation.node.ts   # Startup config checks, migrations
 ```

@@ -1,26 +1,27 @@
 import { isIP } from "node:net";
 
 /**
- * The key every request without a usable client IP shares.
+ * The client key every request without a usable client IP shares.
  *
- * Production always carries `CF-Connecting-IP` (see ADR-0001), so this bucket
+ * Production always carries `CF-Connecting-IP` (see docs/adr/0001-cloudflare-tunnel-ingress.md), so this bucket
  * only fills in local development or if the ingress chain ever changes. One
  * shared bucket is the fail-safe reading of that: it throttles everyone
  * together rather than letting a header-less caller go unthrottled.
  */
-export const UNKNOWN_CLIENT_IP = "unknown";
+export const UNKNOWN_CLIENT_KEY = "unknown";
 
 /**
- * The rate-limit key for a request, from its `CF-Connecting-IP` header.
+ * The rate-limit key for a request, from its `CF-Connecting-IP` header value:
+ * the IPv4 address, the IPv6 /64, or `UNKNOWN_CLIENT_KEY`.
  *
  * Only that header is read. Behind the Cloudflare Tunnel the rightmost
  * `X-Forwarded-For` entry is always an internal hop (cloudflared or Traefik),
  * so falling back to it would bucket every visitor together — exactly what
- * `UNKNOWN_CLIENT_IP` already does, with less to get wrong.
+ * `UNKNOWN_CLIENT_KEY` already does, with less to get wrong.
  */
-export function clientIpFromHeaders(cfConnectingIp: string | null): string {
-  if (cfConnectingIp === null) return UNKNOWN_CLIENT_IP;
-  return normalizeClientIp(cfConnectingIp) ?? UNKNOWN_CLIENT_IP;
+export function clientKey(cfConnectingIp: string | null): string {
+  if (cfConnectingIp === null) return UNKNOWN_CLIENT_KEY;
+  return normalizeClientIp(cfConnectingIp) ?? UNKNOWN_CLIENT_KEY;
 }
 
 const IPV4_MAPPED_PREFIX = "::ffff:";
