@@ -7,6 +7,16 @@ import nextPlugin from "@next/eslint-plugin-next";
 import prettier from "eslint-config-prettier";
 
 /**
+ * Any letter Vietnamese writes with a diacritic: Latin-1 and Latin Extended-A/B
+ * (à, đ, ơ, ư) plus Latin Extended Additional (ạ, ế, ữ…). The ₫ sign, dashes
+ * and the minus sign sit outside both ranges, so number formatting is not
+ * caught by it.
+ */
+const VIETNAMESE = "[\\u00C0-\\u024F\\u1E00-\\u1EFF]";
+const COPY_BELONGS_IN_CATALOG =
+  "User-facing text lives in messages/vi.json — translate it with useTranslations()/getTranslations() instead of writing it here (ADR-0004).";
+
+/**
  * `@next/eslint-plugin-next` directly, not the `eslint-config-next` wrapper:
  * the wrapper bundles a pinned `eslint-plugin-react`, and that pinned version
  * throws (`contextOrFilename.getFilename is not a function`) under this
@@ -73,6 +83,34 @@ const eslintConfig = defineConfig([
       // <a> tags that should be <Link>. This project has no pages/
       // directory and never will; the rule is dead weight, not a guard.
       "@next/next/no-html-link-for-pages": "off",
+    },
+  },
+  {
+    /*
+     * Keeps every user-facing string in the catalog (#117). Comments are not
+     * AST nodes, so they are exempt by construction; tests and their fixtures
+     * hold Vietnamese *data* (names like "Mục X"), not UI, and are excluded.
+     * `src/lib/no-hardcoded-copy.test.ts` runs this against the real config,
+     * with controls, so a selector that stops matching fails a test.
+     */
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: ["src/**/*.test.{ts,tsx}", "src/test/**"],
+    rules: {
+      "no-restricted-syntax": [
+        "error",
+        {
+          selector: `Literal[value=/${VIETNAMESE}/]`,
+          message: COPY_BELONGS_IN_CATALOG,
+        },
+        {
+          selector: `TemplateElement[value.raw=/${VIETNAMESE}/]`,
+          message: COPY_BELONGS_IN_CATALOG,
+        },
+        {
+          selector: `JSXText[value=/${VIETNAMESE}/]`,
+          message: COPY_BELONGS_IN_CATALOG,
+        },
+      ],
     },
   },
   prettier,

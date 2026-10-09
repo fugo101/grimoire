@@ -12,11 +12,15 @@ import { Spinner } from "@/components/ui/spinner";
  * to reach past this component entirely.
  */
 export function SubmitButton({
-  children = "Submit",
+  children,
   isLoading,
   disabled,
   ...props
-}: React.ComponentProps<typeof Button> & { isLoading: boolean }) {
+}: React.ComponentProps<typeof Button> & {
+  isLoading: boolean;
+  /** Required: a default label would be text outside the catalog. */
+  children: React.ReactNode;
+}) {
   return (
     <Button type="submit" disabled={isLoading || disabled} {...props}>
       {/* No margin here — Button already applies `gap-1.5` between children,

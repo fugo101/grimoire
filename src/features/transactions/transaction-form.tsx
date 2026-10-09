@@ -1,4 +1,5 @@
 import { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import { CalendarClock } from "lucide-react";
@@ -68,6 +69,7 @@ export function TransactionForm({
 }: TransactionFormProps) {
   const queryClient = useQueryClient();
   const [serverError, setServerError] = useState<ActionError | null>(null);
+  const t = useTranslations();
   const errorMessage = useErrorMessage();
   const { formatRelativeDay } = useFormatters();
   const [showDate, setShowDate] = useState(false);
@@ -122,7 +124,10 @@ export function TransactionForm({
         keepOpen.current = false;
         form.setFieldValue("amount", 0);
         form.setFieldValue("note", "");
-        toastSuccess("Đã lưu", "Nhập tiếp khoản kế tiếp.");
+        toastSuccess(
+          t("transactions.form.savedTitle"),
+          t("transactions.form.savedDescription")
+        );
         return;
       }
 
@@ -147,7 +152,7 @@ export function TransactionForm({
       <form.Field name="amount">
         {(field) => (
           <div className="space-y-2">
-            <Label htmlFor={field.name}>Số tiền</Label>
+            <Label htmlFor={field.name}>{t("transactions.form.amount")}</Label>
             <CurrencyInput
               id={field.name}
               size="lg"
@@ -164,7 +169,7 @@ export function TransactionForm({
       <form.Field name="note">
         {(field) => (
           <div className="space-y-2">
-            <Label htmlFor={field.name}>Ghi chú</Label>
+            <Label htmlFor={field.name}>{t("transactions.form.note")}</Label>
             <Input
               id={field.name}
               name={field.name}
@@ -173,7 +178,7 @@ export function TransactionForm({
               // fields down, and asking it twice in a row, once for free text
               // and once for a choice, is exactly the kind of distinction
               // without a difference this whole change is removing.
-              placeholder="Mua gì, ở đâu? (không bắt buộc)"
+              placeholder={t("transactions.form.notePlaceholder")}
               value={field.state.value}
               onBlur={field.handleBlur}
               onChange={(e) => field.handleChange(e.target.value)}
@@ -232,7 +237,9 @@ export function TransactionForm({
           <div className="space-y-2">
             {showDate || isEdit ? (
               <>
-                <Label htmlFor={field.name}>Thời gian</Label>
+                <Label htmlFor={field.name}>
+                  {t("transactions.form.date")}
+                </Label>
                 <Input
                   id={field.name}
                   name={field.name}
@@ -253,7 +260,9 @@ export function TransactionForm({
                   {formatRelativeDay(field.state.value)},{" "}
                   {formatTime(field.state.value)}
                 </span>
-                <span className="ml-auto underline">Đổi</span>
+                <span className="ml-auto underline">
+                  {t("transactions.form.changeDate")}
+                </span>
               </button>
             )}
             <FieldError errors={field.state.meta.errors} />
@@ -271,7 +280,7 @@ export function TransactionForm({
         {(isSubmitting) => (
           <div className="flex gap-2">
             <SubmitButton className="flex-1" isLoading={isSubmitting}>
-              {isEdit ? "Cập nhật" : "Lưu"}
+              {isEdit ? t("common.update") : t("common.save")}
             </SubmitButton>
             {!isEdit && (
               <Button
@@ -284,7 +293,7 @@ export function TransactionForm({
                   submit();
                 }}
               >
-                Lưu &amp; nhập tiếp
+                {t("transactions.form.saveAndNext")}
               </Button>
             )}
           </div>

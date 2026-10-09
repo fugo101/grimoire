@@ -1,5 +1,6 @@
 "use client";
 
+import { useTranslations } from "next-intl";
 import { CenteredMessage } from "@/components/centered-message";
 
 /**
@@ -8,11 +9,12 @@ import { CenteredMessage } from "@/components/centered-message";
  * that case). Replaces `__root.tsx`'s `RootError`.
  */
 export default function Error({ reset }: { error: Error; reset: () => void }) {
+  const t = useTranslations("app.error");
   return (
-    <CenteredMessage title="Đã xảy ra lỗi">
-      <span className="block">Không thể tải trang này. Vui lòng thử lại.</span>
+    <CenteredMessage title={t("title")}>
+      <span className="block">{t("description")}</span>
       <button type="button" onClick={reset} className="mt-2 text-sm underline">
-        Thử lại
+        {t("retry")}
       </button>
     </CenteredMessage>
   );

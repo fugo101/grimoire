@@ -3,31 +3,200 @@
     "format": {
       "monthLabel": "Tháng {month} / {year}",
       "today": "Hôm nay",
-      "yesterday": "Hôm qua"
+      "yesterday": "Hôm qua",
+      "shortMonth": "Th.{month}",
+      "shortMonthYear": "Th.{month}/{year}",
+      "week": "T{week}"
+    },
+    "all": "Tất cả",
+    "allTime": "Tất cả thời gian",
+    "save": "Lưu",
+    "update": "Cập nhật",
+    "edit": "Sửa",
+    "delete": "Xoá",
+    "cancel": "Huỷ",
+    "close": "Đóng",
+    "editItem": "Sửa {name}",
+    "deleteItem": "Xoá {name}",
+    "deleteFailed": "Không xoá được. Vui lòng thử lại.",
+    "loading": "Đang tải",
+    "loadingData": "Đang tải dữ liệu...",
+    "previousMonth": "Tháng trước",
+    "nextMonth": "Tháng sau",
+    "totalSpent": "Tổng chi",
+    "noNote": "Không có ghi chú",
+    "comparison": {
+      "same": "Bằng đúng tháng trước",
+      "change": "{direction, select, more {Nhiều hơn} other {Ít hơn}} tháng trước {amount} ({percent}%)"
+    },
+    "confirm": {
+      "title": "Xác nhận",
+      "description": "Bạn có chắc chắn muốn thực hiện hành động này?",
+      "failed": "Không thực hiện được. Vui lòng thử lại."
+    },
+    "toast": {
+      "errorTitle": "Không thực hiện được",
+      "retry": "Vui lòng thử lại.",
+      "close": "Đóng thông báo"
+    },
+    "theme": {
+      "label": "Giao diện",
+      "option": "Giao diện: {name}",
+      "light": "Sáng",
+      "dark": "Tối",
+      "system": "Hệ thống"
+    },
+    "monthRange": {
+      "thisYear": "Năm nay",
+      "lastYear": "Năm trước",
+      "last6Months": "6 tháng gần đây",
+      "last12Months": "12 tháng gần đây"
     }
   },
-  "validation": {
-    "invalid": "Giá trị không hợp lệ",
-    "monthFormat": "Tháng phải có dạng YYYY-MM",
-    "amountPositive": "Số tiền phải lớn hơn 0",
-    "dateRequired": "Vui lòng chọn thời gian",
-    "noteTooLong": "Ghi chú tối đa 500 ký tự",
-    "nameTooLong": "Tên tối đa 100 ký tự",
-    "shareCodeFormat": "Mã chỉ gồm a-z, A-Z, 0-9, dấu gạch ngang (8-32 ký tự)",
-    "shareLinkPurposesRequired": "Chọn ít nhất 1 mục đích chi",
-    "usernameRequired": "Vui lòng nhập tên đăng nhập",
-    "passwordRequired": "Vui lòng nhập mật khẩu"
-  },
-  "errors": {
-    "auth": {
-      "invalidCredentials": "Sai tên đăng nhập hoặc mật khẩu.",
-      "tooManyAttempts": "Quá nhiều lần đăng nhập sai. Vui lòng thử lại sau {minutes, number} phút.",
-      "sessionExpired": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+  "app": {
+    "metadata": {
+      "title": "Grimoire — Quản lý chi tiêu",
+      "description": "Ứng dụng quản lý chi tiêu cá nhân"
     },
-    "shareLinks": {
-      "notFound": "Không tìm thấy liên kết.",
-      "codeTaken": "Mã này đã tồn tại.",
-      "purposeNotFound": "Một hoặc nhiều mục đích chi không tồn tại."
+    "error": {
+      "title": "Đã xảy ra lỗi",
+      "description": "Không thể tải trang này. Vui lòng thử lại.",
+      "retry": "Thử lại"
+    },
+    "notFound": {
+      "title": "Không tìm thấy trang",
+      "description": "Trang bạn tìm không tồn tại."
+    },
+    "home": "Về trang chủ"
+  },
+  "login": {
+    "description": "Đăng nhập để quản lý chi tiêu",
+    "username": "Tên đăng nhập",
+    "password": "Mật khẩu",
+    "submit": "Đăng nhập"
+  },
+  "dashboard": {
+    "nav": {
+      "label": "Điều hướng chính",
+      "overview": "Tổng quan",
+      "transactions": "Giao dịch",
+      "manage": "Quản lý"
+    },
+    "signOut": "Đăng xuất",
+    "manage": {
+      "title": "Quản lý",
+      "nav": "Mục quản lý",
+      "links": "Link"
+    }
+  },
+  "overview": {
+    "perDay": "Trung bình mỗi ngày",
+    "count": "Số khoản chi",
+    "total": {
+      "label": "Tổng chi tháng này",
+      "noneLastMonth": "Tháng trước chưa có chi tiêu nào",
+      "count": "{count, plural, =0 {Chưa có khoản chi nào} other {# khoản chi trong tháng}}"
+    },
+    "breakdown": {
+      "title": "Chi nhiều nhất cho gì",
+      "emptyTitle": "Chưa có dữ liệu",
+      "emptyDescription": "Thêm giao dịch để xem tháng này tiêu vào những nhóm nào.",
+      "share": "{name}: {percent, number} phần trăm tổng chi"
+    },
+    "trend": {
+      "title": "6 tháng gần đây"
+    }
+  },
+  "transactions": {
+    "title": "Giao dịch",
+    "total": "Tổng cộng: {amount}",
+    "add": "Thêm giao dịch",
+    "editTitle": "Sửa giao dịch",
+    "deleteTitle": "Xoá giao dịch",
+    "deleteConfirm": "Bạn có chắc chắn muốn xoá giao dịch này?",
+    "deleteAmount": "Xoá khoản {amount}? Không thể hoàn tác.",
+    "deleteAmountWithNote": "Xoá khoản {amount} — {note}? Không thể hoàn tác.",
+    "deleteFailed": "Không xoá được giao dịch. Vui lòng thử lại.",
+    "unnamed": "giao dịch",
+    "emptyTitle": "Chưa có giao dịch",
+    "emptyDescription": "Hãy thêm khoản chi đầu tiên để bắt đầu theo dõi.",
+    "clearFilter": "Xoá bộ lọc (hiện tất cả)",
+    "columns": {
+      "date": "Thời gian",
+      "note": "Ghi chú",
+      "dimensions": "Mục đích / Nguồn",
+      "amount": "Số tiền"
+    },
+    "form": {
+      "amount": "Số tiền",
+      "note": "Ghi chú",
+      "notePlaceholder": "Mua gì, ở đâu? (không bắt buộc)",
+      "date": "Thời gian",
+      "changeDate": "Đổi",
+      "saveAndNext": "Lưu & nhập tiếp",
+      "savedTitle": "Đã lưu",
+      "savedDescription": "Nhập tiếp khoản kế tiếp."
+    },
+    "chart": {
+      "title": "Tổng chi theo thời gian",
+      "empty": "Không có dữ liệu để hiển thị biểu đồ.",
+      "granularity": {
+        "day": "Ngày",
+        "week": "Tuần",
+        "month": "Tháng",
+        "year": "Năm"
+      }
+    }
+  },
+  "shareLinks": {
+    "createTitle": "Tạo link mới",
+    "allLinks": "Tất cả link",
+    "form": {
+      "name": "Tên link",
+      "namePlaceholder": "Ví dụ: Chi tiêu gia đình",
+      "code": "Mã link",
+      "codePlaceholder": "Để trống = tự tạo",
+      "purposes": "Mục đích chi được chia sẻ",
+      "noPurposes": "Chưa có mục đích chi nào. Hãy tạo mục đích chi trước.",
+      "create": "Tạo link"
+    },
+    "list": {
+      "emptyTitle": "Chưa có link công khai",
+      "emptyDescription": "Tạo link đầu tiên để chia sẻ báo cáo chi tiêu với người khác.",
+      "enabled": "Đang bật",
+      "disabled": "Đã tắt",
+      "open": "Mở {name} trong tab mới",
+      "more": "Tuỳ chọn khác cho {name}",
+      "rotate": "Đổi mã link",
+      "rotateConfirm": "Mã mới sẽ được tạo tự động. Link cũ sẽ không còn hoạt động. Bạn có chắc chắn?",
+      "rotateAction": "Đổi mã",
+      "deleteTitle": "Xoá link công khai",
+      "deleteConfirm": "Bạn có chắc chắn muốn xoá link \"{name}\"? Link sẽ ngừng hoạt động.",
+      "editTitle": "Sửa link công khai"
+    }
+  },
+  "publicReport": {
+    "defaultTitle": "Báo cáo chi tiêu",
+    "sharedWithYou": "Báo cáo được chia sẻ với bạn",
+    "transactionsHeading": "Từng khoản chi",
+    "showAllTime": "Xem tất cả thời gian",
+    "onlyThisMonth": "Chỉ xem tháng này",
+    "total": {
+      "noneLastMonth": "Tháng trước không có khoản chi nào",
+      "count": "{count, plural, =0 {Không có khoản chi nào} other {# khoản chi}}"
+    },
+    "list": {
+      "emptyTitle": "Chưa có khoản chi nào",
+      "emptyDescription": "Không có khoản chi nào trong khoảng thời gian này."
+    },
+    "notFound": {
+      "title": "Không mở được liên kết này",
+      "description": "Liên kết có thể đã bị tắt, hoặc địa chỉ được sao chép chưa đầy đủ. Bạn hãy nhắn cho người đã gửi liên kết để nhận lại link mới."
+    },
+    "error": {
+      "title": "Chưa tải được báo cáo",
+      "description": "Có lỗi xảy ra khi tải dữ liệu. Bạn thử tải lại trang giúp nhé.",
+      "reload": "Tải lại trang"
     }
   },
   "dimensions": {
@@ -68,6 +237,30 @@
         "inUse": "Không thể xoá nguồn tiền đã có giao dịch.",
         "nameTaken": "Đã có nguồn tiền tên này."
       }
+    }
+  },
+  "validation": {
+    "invalid": "Giá trị không hợp lệ",
+    "monthFormat": "Tháng phải có dạng YYYY-MM",
+    "amountPositive": "Số tiền phải lớn hơn 0",
+    "dateRequired": "Vui lòng chọn thời gian",
+    "noteTooLong": "Ghi chú tối đa 500 ký tự",
+    "nameTooLong": "Tên tối đa 100 ký tự",
+    "shareCodeFormat": "Mã chỉ gồm a-z, A-Z, 0-9, dấu gạch ngang (8-32 ký tự)",
+    "shareLinkPurposesRequired": "Chọn ít nhất 1 mục đích chi",
+    "usernameRequired": "Vui lòng nhập tên đăng nhập",
+    "passwordRequired": "Vui lòng nhập mật khẩu"
+  },
+  "errors": {
+    "auth": {
+      "invalidCredentials": "Sai tên đăng nhập hoặc mật khẩu.",
+      "tooManyAttempts": "Quá nhiều lần đăng nhập sai. Vui lòng thử lại sau {minutes, number} phút.",
+      "sessionExpired": "Phiên đăng nhập đã hết hạn. Vui lòng đăng nhập lại."
+    },
+    "shareLinks": {
+      "notFound": "Không tìm thấy liên kết.",
+      "codeTaken": "Mã này đã tồn tại.",
+      "purposeNotFound": "Một hoặc nhiều mục đích chi không tồn tại."
     }
   }
 }

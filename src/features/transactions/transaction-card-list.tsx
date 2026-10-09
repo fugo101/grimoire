@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
 import { Pencil, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import {
   Item,
@@ -57,6 +58,7 @@ export function TransactionCardList({
    */
   "use no memo";
   const { formatRelativeDay, formatVND } = useFormatters();
+  const t = useTranslations();
   const listRef = useRef<HTMLDivElement>(null);
   const showActions = Boolean(onEdit && onDelete);
 
@@ -113,7 +115,7 @@ export function TransactionCardList({
               <Item variant="outline">
                 <ItemContent>
                   <ItemTitle className="truncate">
-                    {row.note || "Không có ghi chú"}
+                    {row.note || t("common.noNote")}
                   </ItemTitle>
                   <ItemDescription className="truncate">
                     {row.purposeName} · {row.fundingSourceName}
@@ -131,7 +133,9 @@ export function TransactionCardList({
                       <Button
                         variant="ghost"
                         size="icon"
-                        aria-label={`Sửa ${row.note || "giao dịch"}`}
+                        aria-label={t("common.editItem", {
+                          name: row.note || t("transactions.unnamed"),
+                        })}
                         onClick={() => onEdit?.(row)}
                       >
                         <Pencil />
@@ -141,14 +145,25 @@ export function TransactionCardList({
                           <Button
                             variant="ghost"
                             size="icon"
-                            aria-label={`Xoá ${row.note || "giao dịch"}`}
+                            aria-label={t("common.deleteItem", {
+                              name: row.note || t("transactions.unnamed"),
+                            })}
                             className="text-destructive hover:text-destructive"
                           >
                             <Trash2 />
                           </Button>
                         }
-                        title="Xoá giao dịch"
-                        description={`Xoá khoản ${formatVND(row.amount)}${row.note ? ` — ${row.note}` : ""}? Không thể hoàn tác.`}
+                        title={t("transactions.deleteTitle")}
+                        description={
+                          row.note
+                            ? t("transactions.deleteAmountWithNote", {
+                                amount: formatVND(row.amount),
+                                note: row.note,
+                              })
+                            : t("transactions.deleteAmount", {
+                                amount: formatVND(row.amount),
+                              })
+                        }
                         onConfirm={() => onDelete?.(row.id)}
                       />
                     </div>

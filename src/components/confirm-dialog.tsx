@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -26,10 +27,10 @@ export function ConfirmDialog({
   trigger,
   open: controlledOpen,
   onOpenChange: setControlledOpen,
-  title = "Xác nhận",
-  description = "Bạn có chắc chắn muốn thực hiện hành động này?",
-  confirmLabel = "Xoá",
-  cancelLabel = "Huỷ",
+  title,
+  description,
+  confirmLabel,
+  cancelLabel,
   variant = "destructive",
   onConfirm,
 }: {
@@ -44,6 +45,7 @@ export function ConfirmDialog({
   variant?: React.ComponentProps<typeof AlertDialogAction>["variant"];
   onConfirm: () => unknown | Promise<unknown>;
 }) {
+  const t = useTranslations("common");
   const [uncontrolledOpen, setUncontrolledOpen] = useState(false);
   const isControlled = controlledOpen !== undefined;
   const open = isControlled ? controlledOpen : uncontrolledOpen;
@@ -65,9 +67,7 @@ export function ConfirmDialog({
       // Previously a bare `finally`: a throwing onConfirm left the dialog open
       // with no explanation and no sign anything had gone wrong.
       setError(
-        err instanceof Error && err.message
-          ? err.message
-          : "Không thực hiện được. Vui lòng thử lại."
+        err instanceof Error && err.message ? err.message : t("confirm.failed")
       );
     } finally {
       setIsLoading(false);
@@ -85,8 +85,10 @@ export function ConfirmDialog({
       {trigger && <AlertDialogTrigger render={trigger as React.ReactElement} />}
       <AlertDialogContent>
         <AlertDialogHeader>
-          <AlertDialogTitle>{title}</AlertDialogTitle>
-          <AlertDialogDescription>{description}</AlertDialogDescription>
+          <AlertDialogTitle>{title ?? t("confirm.title")}</AlertDialogTitle>
+          <AlertDialogDescription>
+            {description ?? t("confirm.description")}
+          </AlertDialogDescription>
         </AlertDialogHeader>
         {error && (
           <p role="alert" className="px-6 text-sm text-destructive">
@@ -95,7 +97,7 @@ export function ConfirmDialog({
         )}
         <AlertDialogFooter>
           <AlertDialogCancel disabled={isLoading}>
-            {cancelLabel}
+            {cancelLabel ?? t("cancel")}
           </AlertDialogCancel>
           <AlertDialogAction
             variant={variant}
@@ -103,7 +105,7 @@ export function ConfirmDialog({
             disabled={isLoading}
           >
             {isLoading && <Spinner />}
-            {confirmLabel}
+            {confirmLabel ?? t("delete")}
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>

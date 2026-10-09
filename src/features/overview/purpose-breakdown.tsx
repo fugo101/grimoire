@@ -1,3 +1,4 @@
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Empty, EmptyDescription, EmptyTitle } from "@/components/ui/empty";
 import { useFormatters } from "@/hooks/use-formatters";
@@ -29,19 +30,18 @@ export function PurposeBreakdown({
   items: PurposeTotal[];
   total: number;
 }) {
+  const t = useTranslations("overview.breakdown");
   const { formatVND } = useFormatters();
   return (
     <Card>
       <CardHeader>
-        <CardTitle>Chi nhiều nhất cho gì</CardTitle>
+        <CardTitle>{t("title")}</CardTitle>
       </CardHeader>
       <CardContent>
         {items.length === 0 ? (
           <Empty>
-            <EmptyTitle>Chưa có dữ liệu</EmptyTitle>
-            <EmptyDescription>
-              Thêm giao dịch để xem tháng này tiêu vào những nhóm nào.
-            </EmptyDescription>
+            <EmptyTitle>{t("emptyTitle")}</EmptyTitle>
+            <EmptyDescription>{t("emptyDescription")}</EmptyDescription>
           </Empty>
         ) : (
           <ul className="space-y-3">
@@ -61,7 +61,10 @@ export function PurposeBreakdown({
                     <div
                       className="h-2 flex-1 overflow-hidden rounded-full bg-muted"
                       role="img"
-                      aria-label={`${item.name}: ${Math.round(pct)} phần trăm tổng chi`}
+                      aria-label={t("share", {
+                        name: item.name,
+                        percent: Math.round(pct),
+                      })}
                     >
                       <div
                         className="h-full rounded-full bg-[var(--chart-1)]"

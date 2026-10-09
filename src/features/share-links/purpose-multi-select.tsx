@@ -1,4 +1,5 @@
 import { useMemo } from "react";
+import { useTranslations } from "next-intl";
 import { Checkbox } from "@/components/ui/checkbox";
 import type { Purpose } from "@/lib/db/schema";
 
@@ -21,14 +22,11 @@ export function PurposeMultiSelect({
   value: string[];
   onChange: (next: string[]) => void;
 }) {
+  const t = useTranslations("shareLinks.form");
   const selected = useMemo(() => new Set(value), [value]);
 
   if (purposes.length === 0) {
-    return (
-      <p className="text-sm text-muted-foreground">
-        Chưa có mục đích chi nào. Hãy tạo mục đích chi trước.
-      </p>
-    );
+    return <p className="text-sm text-muted-foreground">{t("noPurposes")}</p>;
   }
 
   const toggle = (id: string, checked: boolean) => {

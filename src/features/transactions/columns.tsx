@@ -1,5 +1,6 @@
 import type { ColumnDef } from "@tanstack/react-table";
 import { Pencil, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ConfirmDialog } from "@/components/confirm-dialog";
 import { formatDateTime } from "@/lib/format";
@@ -42,6 +43,60 @@ function Amount({ amount }: { amount: number }) {
   return formatVND(amount);
 }
 
+/**
+ * Headers are components for the same reason: `flexRender` renders a function
+ * header as an element, so it can translate itself.
+ */
+function ColumnHeader({
+  column,
+}: {
+  column: "date" | "note" | "dimensions" | "amount";
+}) {
+  const t = useTranslations("transactions.columns");
+  return t(column);
+}
+
+function RowActions({
+  row,
+  handlers,
+}: {
+  row: TransactionTableRow;
+  handlers: ActionHandlers;
+}) {
+  const t = useTranslations();
+  return (
+    <div className="flex items-center justify-end gap-1">
+      <Button
+        variant="ghost"
+        size="icon"
+        aria-label={t("common.editItem", {
+          name: row.note || t("transactions.unnamed"),
+        })}
+        onClick={() => handlers.onEdit(row)}
+      >
+        <Pencil />
+      </Button>
+      <ConfirmDialog
+        trigger={
+          <Button
+            variant="ghost"
+            size="icon"
+            aria-label={t("common.deleteItem", {
+              name: row.note || t("transactions.unnamed"),
+            })}
+            className="text-destructive hover:text-destructive"
+          >
+            <Trash2 />
+          </Button>
+        }
+        title={t("transactions.deleteTitle")}
+        description={t("transactions.deleteConfirm")}
+        onConfirm={() => handlers.onDelete(row.id)}
+      />
+    </div>
+  );
+}
+
 export function transactionColumns(
   handlers?: ActionHandlers
 ): ColumnDef<TransactionTableFeatures, TransactionTableRow>[] {
@@ -49,7 +104,7 @@ export function transactionColumns(
     {
       id: "date",
       accessorKey: "date",
-      header: "Thời gian",
+      header: () => <ColumnHeader column="date" />,
       cell: ({ row }) => (
         <span className="whitespace-nowrap">
           {formatDateTime(row.original.date)}
@@ -63,7 +118,7 @@ export function transactionColumns(
     {
       id: "note",
       accessorKey: "note",
-      header: "Ghi chú",
+      header: () => <ColumnHeader column="note" />,
       enableSorting: false,
       cell: ({ row }) => (
         <span className="block truncate">{row.original.note || "—"}</span>
@@ -71,7 +126,7 @@ export function transactionColumns(
     },
     {
       id: "dimensions",
-      header: "Mục đích / Nguồn",
+      header: () => <ColumnHeader column="dimensions" />,
       // Sorted and filtered on the pair as one string, Purpose first, so
       // ordering follows what the column leads with.
       accessorFn: (row) => `${row.purposeName} ${row.fundingSourceName}`,
@@ -84,7 +139,7 @@ export function transactionColumns(
     {
       id: "amount",
       accessorKey: "amount",
-      header: "Số tiền",
+      header: () => <ColumnHeader column="amount" />,
       meta: { align: "right" as const },
       cell: ({ row }) => (
         <span className="block text-right font-medium">
@@ -97,31 +152,7 @@ export function transactionColumns(
       header: "",
       enableSorting: false,
       cell: ({ row }) =>
-        handlers ? (
-          <div className="flex items-center justify-end gap-1">
-            <Button
-              variant="ghost"
-              size="icon"
-              onClick={() => handlers.onEdit(row.original)}
-            >
-              <Pencil />
-            </Button>
-            <ConfirmDialog
-              trigger={
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="text-destructive hover:text-destructive"
-                >
-                  <Trash2 />
-                </Button>
-              }
-              title="Xoá giao dịch"
-              description="Bạn có chắc chắn muốn xoá giao dịch này?"
-              onConfirm={() => handlers.onDelete(row.original.id)}
-            />
-          </div>
-        ) : null,
+        handlers ? <RowActions row={row.original} handlers={handlers} /> : null,
     },
   ];
 }

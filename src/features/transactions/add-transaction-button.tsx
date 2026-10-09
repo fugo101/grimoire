@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import { Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { ResponsiveModal } from "@/components/responsive-modal";
@@ -19,13 +20,14 @@ export function AddTransactionButton({
   fundingSources: FundingSource[];
   appearance?: "inline" | "floating";
 }) {
+  const t = useTranslations("transactions");
   const [open, setOpen] = useState(false);
 
   const trigger =
     appearance === "floating" ? (
       <Button
         size="icon"
-        aria-label="Thêm giao dịch"
+        aria-label={t("add")}
         className="size-14 rounded-full shadow-lg"
       >
         <Plus className="size-6" />
@@ -34,7 +36,7 @@ export function AddTransactionButton({
       <Button>
         {/* No margin: Button already spaces its children with `gap-1.5`. */}
         <Plus />
-        Thêm giao dịch
+        {t("add")}
       </Button>
     );
 
@@ -42,7 +44,7 @@ export function AddTransactionButton({
     <ResponsiveModal
       open={open}
       onOpenChange={setOpen}
-      title="Thêm giao dịch"
+      title={t("add")}
       trigger={trigger}
     >
       <TransactionForm

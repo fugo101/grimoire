@@ -1,7 +1,7 @@
 import type { Metadata, Viewport } from "next";
 import { cookies, headers } from "next/headers";
 import { NextIntlClientProvider } from "next-intl";
-import { getLocale } from "next-intl/server";
+import { getLocale, getTranslations } from "next-intl/server";
 import "@/styles/app.css";
 import {
   DEFAULT_THEME_PREFERENCE,
@@ -11,11 +11,14 @@ import {
 } from "@/lib/theme";
 import { Providers } from "./providers";
 
-export const metadata: Metadata = {
-  title: "Grimoire — Quản lý chi tiêu",
-  description: "Ứng dụng quản lý chi tiêu cá nhân",
-  icons: { icon: "/favicon.ico" },
-};
+export async function generateMetadata(): Promise<Metadata> {
+  const t = await getTranslations("app.metadata");
+  return {
+    title: t("title"),
+    description: t("description"),
+    icons: { icon: "/favicon.ico" },
+  };
+}
 
 export const viewport: Viewport = {
   width: "device-width",

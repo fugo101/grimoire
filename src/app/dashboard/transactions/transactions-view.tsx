@@ -4,6 +4,7 @@ import { useTransition } from "react";
 import type { Route } from "next";
 import { useRouter } from "next/navigation";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { AddTransactionButton } from "@/features/transactions/add-transaction-button";
 import { ExpenseChart } from "@/features/transactions/expense-chart";
 import { TransactionFilters } from "@/features/transactions/transaction-filters";
@@ -28,6 +29,7 @@ function buildHref(next: Partial<TransactionSearch>): Route {
 }
 
 export function TransactionsView({ search }: { search: TransactionSearch }) {
+  const t = useTranslations("transactions");
   const { formatVND } = useFormatters();
   const router = useRouter();
   const [isPending, startTransition] = useTransition();
@@ -62,9 +64,9 @@ export function TransactionsView({ search }: { search: TransactionSearch }) {
     >
       <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Giao dịch</h1>
+          <h1 className="text-2xl font-bold tracking-tight">{t("title")}</h1>
           <p className="text-sm text-muted-foreground">
-            Tổng cộng: {formatVND(total)}
+            {t("total", { amount: formatVND(total) })}
           </p>
         </div>
         {/* Mobile reaches this through the floating button in the app shell,

@@ -1,4 +1,5 @@
 import { ChevronLeft, ChevronRight } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
 import { addMonths, getCurrentMonth } from "@/lib/format";
@@ -20,6 +21,7 @@ export function MonthStepper({
   month: string;
   onChange: (month: string) => void;
 }) {
+  const t = useTranslations("common");
   const { formatMonthLabel } = useFormatters();
   const atCurrent = month >= getCurrentMonth();
 
@@ -29,7 +31,7 @@ export function MonthStepper({
         variant="outline"
         size="lg"
         className="shrink-0"
-        aria-label="Tháng trước"
+        aria-label={t("previousMonth")}
         onClick={() => onChange(addMonths(month, -1))}
       >
         <ChevronLeft />
@@ -44,7 +46,7 @@ export function MonthStepper({
         variant="outline"
         size="lg"
         className="shrink-0"
-        aria-label="Tháng sau"
+        aria-label={t("nextMonth")}
         disabled={atCurrent}
         onClick={() => onChange(addMonths(month, 1))}
       >

@@ -1,9 +1,25 @@
+import { useTranslations } from "next-intl";
 import { NavLink } from "@/components/nav-link";
+import {
+  FUNDING_SOURCE_COPY,
+  PURPOSE_COPY,
+} from "@/features/dimensions/dimension-copy";
 
+/**
+ * Each tab's label is a catalog key. The two dimension tabs reuse the
+ * dimension's own `plural`, so a tab can never name a dimension differently
+ * from the screen it opens.
+ */
 const TABS = [
-  { href: "/dashboard/manage/purposes", label: "Mục đích chi" },
-  { href: "/dashboard/manage/funding-sources", label: "Nguồn tiền" },
-  { href: "/dashboard/manage/links", label: "Link" },
+  {
+    href: "/dashboard/manage/purposes",
+    label: `${PURPOSE_COPY.namespace}.plural`,
+  },
+  {
+    href: "/dashboard/manage/funding-sources",
+    label: `${FUNDING_SOURCE_COPY.namespace}.plural`,
+  },
+  { href: "/dashboard/manage/links", label: "dashboard.manage.links" },
 ] as const;
 
 /**
@@ -36,11 +52,14 @@ export default function ManageLayout({
 }: {
   children: React.ReactNode;
 }) {
+  const t = useTranslations();
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold tracking-tight">Quản lý</h1>
+      <h1 className="text-2xl font-bold tracking-tight">
+        {t("dashboard.manage.title")}
+      </h1>
 
-      <nav aria-label="Mục quản lý">
+      <nav aria-label={t("dashboard.manage.nav")}>
         <ul className="flex gap-1 rounded-lg bg-muted p-1">
           {TABS.map((tab) => (
             <li key={tab.href} className="flex-auto">
@@ -49,7 +68,7 @@ export default function ManageLayout({
                 className="flex h-11 items-center justify-center rounded-md px-3 text-sm font-medium text-muted-foreground transition-colors md:h-9"
                 activeClassName="bg-background text-foreground shadow-xs"
               >
-                {tab.label}
+                {t(tab.label)}
               </NavLink>
             </li>
           ))}

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useTranslations } from "next-intl";
 import {
   Trash2,
   Pencil,
@@ -28,7 +29,7 @@ import {
   EmptyTitle,
 } from "@/components/ui/empty";
 import { useErrorMessage } from "@/hooks/use-error-message";
-import { toastError } from "@/lib/toast";
+import { useErrorToast } from "@/hooks/use-error-toast";
 import { CopyButton } from "@/components/copy-button";
 import { ShareLinkForm } from "@/features/share-links/share-link-form";
 import {
@@ -60,7 +61,9 @@ export function ShareLinkList({
     link: ShareLinkWithPurposes;
   } | null>(null);
   const queryClient = useQueryClient();
+  const t = useTranslations();
   const errorMessage = useErrorMessage();
+  const toastError = useErrorToast();
   const linksKey = shareLinksQueryOptions().queryKey;
 
   const invalidate = () =>
@@ -124,9 +127,9 @@ export function ShareLinkList({
           <EmptyMedia variant="icon">
             <Share2 />
           </EmptyMedia>
-          <EmptyTitle>Chưa có link công khai</EmptyTitle>
+          <EmptyTitle>{t("shareLinks.list.emptyTitle")}</EmptyTitle>
           <EmptyDescription>
-            Tạo link đầu tiên để chia sẻ báo cáo chi tiêu với người khác.
+            {t("shareLinks.list.emptyDescription")}
           </EmptyDescription>
         </EmptyHeader>
       </Empty>
@@ -180,7 +183,9 @@ export function ShareLinkList({
                     link.enabled ? "text-sm" : "text-sm text-muted-foreground"
                   }
                 >
-                  {link.enabled ? "Đang bật" : "Đã tắt"}
+                  {link.enabled
+                    ? t("shareLinks.list.enabled")
+                    : t("shareLinks.list.disabled")}
                 </span>
               </label>
 
@@ -191,7 +196,9 @@ export function ShareLinkList({
               <Button
                 variant="ghost"
                 size="icon"
-                aria-label={`Mở ${link.name || link.code} trong tab mới`}
+                aria-label={t("shareLinks.list.open", {
+                  name: link.name || link.code,
+                })}
                 onClick={() => window.open(`/p/${link.code}`, "_blank")}
               >
                 <ExternalLink />
@@ -203,7 +210,9 @@ export function ShareLinkList({
                     <Button
                       variant="ghost"
                       size="icon"
-                      aria-label={`Tuỳ chọn khác cho ${link.name || link.code}`}
+                      aria-label={t("shareLinks.list.more", {
+                        name: link.name || link.code,
+                      })}
                     >
                       <MoreHorizontal />
                     </Button>
@@ -212,13 +221,13 @@ export function ShareLinkList({
                 <DropdownMenuContent align="end">
                   <DropdownMenuItem onClick={() => setEditing(link)}>
                     <Pencil />
-                    Sửa
+                    {t("common.edit")}
                   </DropdownMenuItem>
                   <DropdownMenuItem
                     onClick={() => setPendingConfirm({ kind: "rotate", link })}
                   >
                     <RefreshCw />
-                    Đổi mã link
+                    {t("shareLinks.list.rotate")}
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem
@@ -226,7 +235,7 @@ export function ShareLinkList({
                     onClick={() => setPendingConfirm({ kind: "delete", link })}
                   >
                     <Trash2 />
-                    Xoá
+                    {t("common.delete")}
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
@@ -244,15 +253,22 @@ export function ShareLinkList({
         onOpenChange={(open) => !open && setPendingConfirm(null)}
         title={
           pendingConfirm?.kind === "rotate"
-            ? "Đổi mã link"
-            : "Xoá link công khai"
+            ? t("shareLinks.list.rotate")
+            : t("shareLinks.list.deleteTitle")
         }
         description={
           pendingConfirm?.kind === "rotate"
-            ? "Mã mới sẽ được tạo tự động. Link cũ sẽ không còn hoạt động. Bạn có chắc chắn?"
-            : `Bạn có chắc chắn muốn xoá link "${pendingConfirm?.link.name || pendingConfirm?.link.code}"? Link sẽ ngừng hoạt động.`
+            ? t("shareLinks.list.rotateConfirm")
+            : t("shareLinks.list.deleteConfirm", {
+                name:
+                  pendingConfirm?.link.name || pendingConfirm?.link.code || "",
+              })
         }
-        confirmLabel={pendingConfirm?.kind === "rotate" ? "Đổi mã" : "Xoá"}
+        confirmLabel={
+          pendingConfirm?.kind === "rotate"
+            ? t("shareLinks.list.rotateAction")
+            : t("common.delete")
+        }
         // Rotating a code is not a deletion and should not be styled like one.
         variant={pendingConfirm?.kind === "rotate" ? "default" : "destructive"}
         onConfirm={async () => {
@@ -266,7 +282,7 @@ export function ShareLinkList({
       <ResponsiveModal
         open={editing !== null}
         onOpenChange={(open) => !open && setEditing(null)}
-        title="Sửa link công khai"
+        title={t("shareLinks.list.editTitle")}
       >
         {editing && (
           <ShareLinkForm

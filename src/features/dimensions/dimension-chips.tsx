@@ -16,14 +16,6 @@ const EVERYTHING = "__everything__";
 const STALE = "__stale__";
 
 /**
- * The one word that is the same for both dimensions, so it lives here rather
- * than in either dimension's catalog subtree, which hold only what *differs*.
- * The group is labelled by the dimension's question, so "Tất cả" alone is
- * unambiguous.
- */
-const EVERYTHING_LABEL = "Tất cả";
-
-/**
  * What a change reported by the toggle group means for the caller.
  *
  * `undefined` means "no change": in `required` mode, un-pressing the chosen
@@ -99,6 +91,11 @@ export function DimensionChips({
 }) {
   const labelId = useId();
   const t = useTranslations(copy.namespace);
+  // The one word that is the same for both dimensions, so it comes from
+  // `common` rather than either dimension's subtree, which hold only what
+  // *differs*. The group is labelled by the dimension's question, so "all"
+  // alone is unambiguous.
+  const tCommon = useTranslations("common");
 
   const isStale =
     value !== null && !options.some((option) => option.id === value);
@@ -125,7 +122,7 @@ export function DimensionChips({
         }}
         className="flex-wrap"
       >
-        {!required && <Chip value={EVERYTHING}>{EVERYTHING_LABEL}</Chip>}
+        {!required && <Chip value={EVERYTHING}>{tCommon("all")}</Chip>}
         {options.map((option) => (
           <Chip key={option.id} value={option.id}>
             {option.name}

@@ -1,5 +1,15 @@
 export type Granularity = "day" | "week" | "month" | "year";
 
+/**
+ * The two axis labels that are words — "T5" (tuần 5), "Th.07/26" (tháng 7) —
+ * supplied from the catalog by the caller. Day and year labels are digits
+ * only and stay here.
+ */
+export type GroupLabels = {
+  week: (week: string) => string;
+  month: (month: string, year: string) => string;
+};
+
 export type ChartDataPoint = {
   label: string;
   sortKey: string;
@@ -44,7 +54,8 @@ export function getGroupKey(dateStr: string, granularity: Granularity): string {
 
 export function getGroupLabel(
   sortKey: string,
-  granularity: Granularity
+  granularity: Granularity,
+  labels: GroupLabels
 ): string {
   switch (granularity) {
     case "day": {
@@ -55,12 +66,12 @@ export function getGroupLabel(
     case "week": {
       // sortKey: "YYYY-WNN"
       const week = sortKey.split("-W")[1];
-      return `T${parseInt(week)}`;
+      return labels.week(String(parseInt(week)));
     }
     case "month": {
       // sortKey: "YYYY-MM"
       const parts = sortKey.split("-");
-      return `Th.${parts[1]}/${parts[0].slice(2)}`;
+      return labels.month(parts[1], parts[0].slice(2));
     }
     case "year":
       return sortKey;
@@ -142,7 +153,8 @@ function generateAllKeys(
 
 export function groupTransactionsByGranularity(
   transactions: Array<{ amount: number; date: string }>,
-  granularity: Granularity
+  granularity: Granularity,
+  labels: GroupLabels
 ): ChartDataPoint[] {
   const range = getDateRange(transactions);
   if (!range) return [];
@@ -158,7 +170,7 @@ export function groupTransactionsByGranularity(
   const allKeys = generateAllKeys(range[0], range[1], granularity);
 
   return allKeys.map((sortKey) => ({
-    label: getGroupLabel(sortKey, granularity),
+    label: getGroupLabel(sortKey, granularity, labels),
     sortKey,
     total: map.get(sortKey) ?? 0,
   }));

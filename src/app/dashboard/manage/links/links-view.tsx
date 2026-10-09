@@ -1,6 +1,7 @@
 "use client";
 
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { useTranslations } from "next-intl";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { ShareLinkForm } from "@/features/share-links/share-link-form";
 import { ShareLinkList } from "@/features/share-links/share-link-list";
@@ -10,6 +11,7 @@ import {
 } from "@/lib/query-options";
 
 export function LinksView() {
+  const t = useTranslations("shareLinks");
   const { data: purposes } = useSuspenseQuery(purposesQueryOptions());
   const { data: links } = useSuspenseQuery(shareLinksQueryOptions());
 
@@ -20,7 +22,7 @@ export function LinksView() {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Tạo link mới</CardTitle>
+          <CardTitle>{t("createTitle")}</CardTitle>
         </CardHeader>
         <CardContent>
           <ShareLinkForm purposes={purposes} />
@@ -29,7 +31,7 @@ export function LinksView() {
 
       <section className="space-y-3">
         <h2 className="font-semibold tracking-tight">
-          Tất cả link
+          {t("allLinks")}
           {links.length > 0 && (
             <span className="ml-2 font-normal text-muted-foreground tabular-nums">
               {links.length}

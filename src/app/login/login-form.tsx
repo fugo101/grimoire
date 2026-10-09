@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useTranslations } from "next-intl";
 import { useForm } from "@tanstack/react-form";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,6 +23,7 @@ import { loginSchema } from "@/lib/schemas";
 import { login } from "@/server/auth.actions";
 
 export function LoginForm() {
+  const t = useTranslations("login");
   const themePreference = useThemePreference();
   const router = useRouter();
   const [serverError, setServerError] = useState<ActionError | null>(null);
@@ -56,7 +58,7 @@ export function LoginForm() {
       <Card className="w-full max-w-sm">
         <CardHeader className="text-center">
           <CardTitle className="text-2xl">Grimoire</CardTitle>
-          <CardDescription>Đăng nhập để quản lý chi tiêu</CardDescription>
+          <CardDescription>{t("description")}</CardDescription>
         </CardHeader>
         <CardContent>
           <form
@@ -70,7 +72,7 @@ export function LoginForm() {
             <form.Field name="username">
               {(field) => (
                 <div className="space-y-2">
-                  <Label htmlFor={field.name}>Tên đăng nhập</Label>
+                  <Label htmlFor={field.name}>{t("username")}</Label>
                   <Input
                     id={field.name}
                     name={field.name}
@@ -88,7 +90,7 @@ export function LoginForm() {
             <form.Field name="password">
               {(field) => (
                 <div className="space-y-2">
-                  <Label htmlFor={field.name}>Mật khẩu</Label>
+                  <Label htmlFor={field.name}>{t("password")}</Label>
                   <Input
                     id={field.name}
                     name={field.name}
@@ -112,7 +114,7 @@ export function LoginForm() {
             <form.Subscribe selector={(s) => s.isSubmitting}>
               {(isSubmitting) => (
                 <SubmitButton className="w-full" isLoading={isSubmitting}>
-                  Đăng nhập
+                  {t("submit")}
                 </SubmitButton>
               )}
             </form.Subscribe>

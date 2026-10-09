@@ -1,4 +1,5 @@
 import { ArrowDown, ArrowUp, Minus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Card, CardContent } from "@/components/ui/card";
 import { useFormatters } from "@/hooks/use-formatters";
 import { cn } from "@/lib/utils";
@@ -22,12 +23,11 @@ export function PublicTotalCard({
   previousTotal: number | null;
   count: number;
 }) {
+  const t = useTranslations("publicReport.total");
+  const tCommon = useTranslations("common");
+  const tComparison = useTranslations("common.comparison");
   const { formatVND } = useFormatters();
   const delta = previousTotal === null ? null : total - previousTotal;
-  const pct =
-    previousTotal && previousTotal > 0 && delta !== null
-      ? Math.round((delta / previousTotal) * 100)
-      : null;
 
   const Icon =
     delta === null || delta === 0 ? Minus : delta > 0 ? ArrowUp : ArrowDown;
@@ -39,23 +39,25 @@ export function PublicTotalCard({
         : "text-success";
 
   let comparison: string | null = null;
-  if (delta !== null) {
+  if (previousTotal !== null && delta !== null) {
     if (previousTotal === 0) {
-      comparison = "Tháng trước không có khoản chi nào";
+      comparison = t("noneLastMonth");
     } else if (delta === 0) {
-      comparison = "Bằng đúng tháng trước";
+      comparison = tComparison("same");
     } else {
-      const direction = delta > 0 ? "Nhiều hơn" : "Ít hơn";
-      comparison = `${direction} tháng trước ${formatVND(Math.abs(delta))}${
-        pct !== null ? ` (${Math.abs(pct)}%)` : ""
-      }`;
+      // previousTotal is non-zero here, so the percentage always exists.
+      comparison = tComparison("change", {
+        direction: delta > 0 ? "more" : "less",
+        amount: formatVND(Math.abs(delta)),
+        percent: String(Math.abs(Math.round((delta / previousTotal) * 100))),
+      });
     }
   }
 
   return (
     <Card>
       <CardContent className="space-y-2 py-4 text-center">
-        <p className="text-muted-foreground">Tổng chi</p>
+        <p className="text-muted-foreground">{tCommon("totalSpent")}</p>
         <p className="text-4xl font-bold tracking-tight tabular-nums">
           {formatVND(total)}
         </p>
@@ -65,9 +67,7 @@ export function PublicTotalCard({
             <span>{comparison}</span>
           </p>
         )}
-        <p className="text-muted-foreground">
-          {count === 0 ? "Không có khoản chi nào" : `${count} khoản chi`}
-        </p>
+        <p className="text-muted-foreground">{t("count", { count })}</p>
       </CardContent>
     </Card>
   );
