@@ -27,8 +27,7 @@
     "noNote": "Không có ghi chú",
     "comparison": {
       "same": "Bằng đúng tháng trước",
-      "change": "{direction, select, more {Nhiều hơn} other {Ít hơn}} tháng trước {amount}",
-      "changeWithPercent": "{direction, select, more {Nhiều hơn} other {Ít hơn}} tháng trước {amount} ({percent}%)"
+      "change": "{direction, select, more {Nhiều hơn} other {Ít hơn}} tháng trước {amount} ({percent}%)"
     },
     "confirm": {
       "title": "Xác nhận",

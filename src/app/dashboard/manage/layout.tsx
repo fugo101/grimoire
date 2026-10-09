@@ -1,5 +1,9 @@
 import { useTranslations } from "next-intl";
 import { NavLink } from "@/components/nav-link";
+import {
+  FUNDING_SOURCE_COPY,
+  PURPOSE_COPY,
+} from "@/features/dimensions/dimension-copy";
 
 /**
  * Each tab's label is a catalog key. The two dimension tabs reuse the
@@ -7,10 +11,13 @@ import { NavLink } from "@/components/nav-link";
  * from the screen it opens.
  */
 const TABS = [
-  { href: "/dashboard/manage/purposes", label: "dimensions.purpose.plural" },
+  {
+    href: "/dashboard/manage/purposes",
+    label: `${PURPOSE_COPY.namespace}.plural`,
+  },
   {
     href: "/dashboard/manage/funding-sources",
-    label: "dimensions.fundingSource.plural",
+    label: `${FUNDING_SOURCE_COPY.namespace}.plural`,
   },
   { href: "/dashboard/manage/links", label: "dashboard.manage.links" },
 ] as const;

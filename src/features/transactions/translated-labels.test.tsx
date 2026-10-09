@@ -46,6 +46,30 @@ describe("transactionColumns", () => {
   });
 });
 
+describe("row actions", () => {
+  it("name the row they act on, for a screen reader", () => {
+    const actions = transactionColumns({
+      onEdit: () => {},
+      onDelete: () => {},
+    }).find((column) => column.id === "actions");
+    const Cell = actions?.cell as (props: {
+      row: { original: { id: string; note: string } };
+    }) => React.ReactNode;
+    const html = renderToStaticMarkup(
+      withIntl(<Cell row={{ original: { id: "t1", note: "Cà phê" } }} />)
+    );
+    expect(html).toContain('aria-label="Sửa Cà phê"');
+    expect(html).toContain('aria-label="Xoá Cà phê"');
+    // The control: without a note the row is named generically, not blank.
+    const unnamed = renderToStaticMarkup(
+      withIntl(<Cell row={{ original: { id: "t2", note: "" } }} />)
+    );
+    expect(unnamed).toContain(
+      `aria-label="Sửa ${messages.transactions.unnamed}"`
+    );
+  });
+});
+
 describe("MonthRangePicker", () => {
   it("labels months and presets in words, not numbers or keys", () => {
     const shown = text(
@@ -53,8 +77,11 @@ describe("MonthRangePicker", () => {
         withIntl(<MonthRangePicker onMonthRangeSelect={() => {}} />)
       )
     );
-    for (const month of ["Th.1", "Th.7", "Th.12"])
-      expect(shown).toContain(month);
+    // Matched as whole cells, so "Th.1" cannot pass on the strength of "Th.10".
+    const cells = shown.split("\n").map((s) => s.trim());
+    for (const month of ["Th.1", "Th.7", "Th.12"]) {
+      expect(cells).toContain(month);
+    }
     for (const preset of Object.values(messages.common.monthRange)) {
       expect(shown).toContain(preset);
     }

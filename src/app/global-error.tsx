@@ -15,7 +15,11 @@ import { DEFAULT_LOCALE } from "@/i18n/config";
  * That includes the layout's `NextIntlClientProvider`, so this brings its own,
  * with the default locale's catalog imported directly: with the layout gone
  * there is no request config to ask, and an error page that could not find
- * its own words would be no error page at all.
+ * its own words would be no error page at all. This is the one place besides
+ * `src/i18n/request.ts` that picks a locale, and it can only pick the default;
+ * when a second language exists, this file has to learn to choose too. Only
+ * the `app` subtree is handed over — it is all this page and
+ * `CenteredMessage` read.
  */
 export default function GlobalError({
   reset,
@@ -26,7 +30,10 @@ export default function GlobalError({
   return (
     <html lang={DEFAULT_LOCALE}>
       <body>
-        <NextIntlClientProvider locale={DEFAULT_LOCALE} messages={messages}>
+        <NextIntlClientProvider
+          locale={DEFAULT_LOCALE}
+          messages={{ app: messages.app }}
+        >
           <GlobalErrorMessage reset={reset} />
         </NextIntlClientProvider>
       </body>

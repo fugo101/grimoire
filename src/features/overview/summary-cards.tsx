@@ -21,8 +21,6 @@ export function TotalCard({
   const tComparison = useTranslations("common.comparison");
   const { formatVND } = useFormatters();
   const delta = total - previousTotal;
-  const pct =
-    previousTotal > 0 ? Math.round((delta / previousTotal) * 100) : null;
 
   // More spending is not "good" — it is just up. The colour says direction, the
   // words say what happened, and neither is load-bearing on its own.
@@ -40,17 +38,12 @@ export function TotalCard({
   } else if (delta === 0) {
     comparison = tComparison("same");
   } else {
-    const change = {
+    // previousTotal is non-zero here, so the percentage always exists.
+    comparison = tComparison("change", {
       direction: delta > 0 ? "more" : "less",
       amount: formatVND(Math.abs(delta)),
-    };
-    comparison =
-      pct !== null
-        ? tComparison("changeWithPercent", {
-            ...change,
-            percent: String(Math.abs(pct)),
-          })
-        : tComparison("change", change);
+      percent: String(Math.abs(Math.round((delta / previousTotal) * 100))),
+    });
   }
 
   return (

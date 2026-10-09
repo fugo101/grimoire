@@ -28,10 +28,6 @@ export function PublicTotalCard({
   const tComparison = useTranslations("common.comparison");
   const { formatVND } = useFormatters();
   const delta = previousTotal === null ? null : total - previousTotal;
-  const pct =
-    previousTotal && previousTotal > 0 && delta !== null
-      ? Math.round((delta / previousTotal) * 100)
-      : null;
 
   const Icon =
     delta === null || delta === 0 ? Minus : delta > 0 ? ArrowUp : ArrowDown;
@@ -43,23 +39,18 @@ export function PublicTotalCard({
         : "text-success";
 
   let comparison: string | null = null;
-  if (delta !== null) {
+  if (previousTotal !== null && delta !== null) {
     if (previousTotal === 0) {
       comparison = t("noneLastMonth");
     } else if (delta === 0) {
       comparison = tComparison("same");
     } else {
-      const change = {
+      // previousTotal is non-zero here, so the percentage always exists.
+      comparison = tComparison("change", {
         direction: delta > 0 ? "more" : "less",
         amount: formatVND(Math.abs(delta)),
-      };
-      comparison =
-        pct !== null
-          ? tComparison("changeWithPercent", {
-              ...change,
-              percent: String(Math.abs(pct)),
-            })
-          : tComparison("change", change);
+        percent: String(Math.abs(Math.round((delta / previousTotal) * 100))),
+      });
     }
   }
 
