@@ -1,5 +1,12 @@
 # Changelog
 
+## [2.4.1](https://github.com/fugo101/grimoire/compare/v2.4.0...v2.4.1) (2026-10-09)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** resolve high-severity audit advisories ([#149](https://github.com/fugo101/grimoire/issues/149)) ([c90f3d4](https://github.com/fugo101/grimoire/commit/c90f3d40f264cdc8a04cfaaa9a72f076228b48b9))
+
 ## [2.4.0](https://github.com/fugo101/grimoire/compare/v2.3.0...v2.4.0) (2026-09-05)
 
 
