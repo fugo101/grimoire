@@ -1,6 +1,7 @@
 import { afterEach, describe, expect, it } from "vitest";
 import { SignJWT } from "jose";
 import {
+  assertAdminCredentials,
   assertAuthSecret,
   createToken,
   validateCredentials,
@@ -29,6 +30,37 @@ describe("assertAuthSecret", () => {
   it("does not throw at exactly 32 characters (positive control)", () => {
     process.env.AUTH_SECRET = VALID_SECRET;
     expect(() => assertAuthSecret()).not.toThrow();
+  });
+
+  // The value .env.example used to ship. It is 33 characters, so the length
+  // check alone lets it through — while it sits in a public repository.
+  it("throws when AUTH_SECRET is the old .env.example placeholder", () => {
+    process.env.AUTH_SECRET = "your-secret-key-at-least-32-chars";
+    expect(() => assertAuthSecret()).toThrow(/placeholder/);
+  });
+});
+
+describe("assertAdminCredentials", () => {
+  it("throws when ADMIN_USERNAME is missing", () => {
+    process.env.ADMIN_PASSWORD = "correct-horse-battery-staple";
+    expect(() => assertAdminCredentials()).toThrow("ADMIN_USERNAME is not set");
+  });
+
+  it("throws when ADMIN_PASSWORD is missing", () => {
+    process.env.ADMIN_USERNAME = "admin";
+    expect(() => assertAdminCredentials()).toThrow("ADMIN_PASSWORD is not set");
+  });
+
+  it("throws when ADMIN_PASSWORD is a shipped default, in any case", () => {
+    process.env.ADMIN_USERNAME = "admin";
+    process.env.ADMIN_PASSWORD = "ChangeMe";
+    expect(() => assertAdminCredentials()).toThrow(/shipped default/);
+  });
+
+  it("does not throw with a real password (positive control)", () => {
+    process.env.ADMIN_USERNAME = "admin";
+    process.env.ADMIN_PASSWORD = "correct-horse-battery-staple";
+    expect(() => assertAdminCredentials()).not.toThrow();
   });
 });
 
