@@ -4,21 +4,16 @@ import type { FundingShare, PurposeTotal, TransactionRow } from "@/lib/types";
  * Each Purpose's Gross cost, with its Funding split.
  *
  * The one place this roll-up is written. The admin's overview and a Share
- * Link's Public Report both show it, and they used to compute it separately —
- * by id on one side and by name on the other, so the same rows could roll up
- * differently depending on who was looking. Keyed by **id**: two Purposes that
- * share a name are still two Purposes.
+ * Link's Public Report both show it, and each used to carry its own copy —
+ * copies that once disagreed (one keyed by name), so the same rows could roll
+ * up differently depending on who was looking. Keyed by **id**: two Purposes
+ * that share a name are still two Purposes.
  */
 export function rollUpByPurpose(rows: TransactionRow[]): PurposeTotal[] {
-  const buckets = new Map<
-    string,
-    {
-      id: string;
-      name: string;
-      total: number;
-      split: Map<string, FundingShare>;
-    }
-  >();
+  type Bucket = Omit<PurposeTotal, "byFundingSource"> & {
+    split: Map<string, FundingShare>;
+  };
+  const buckets = new Map<string, Bucket>();
 
   for (const row of rows) {
     let bucket = buckets.get(row.purposeId);

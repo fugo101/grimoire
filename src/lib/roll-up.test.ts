@@ -22,63 +22,68 @@ function row(
   };
 }
 
-const FOOD: [string, string] = ["p-food", "Purpose A"];
-const RENT: [string, string] = ["p-rent", "Purpose B"];
-const WALLET: [string, string] = ["f-wallet", "Source A"];
-const GIFT: [string, string] = ["f-gift", "Source B"];
+const PURPOSE_A: [string, string] = ["p-a", "Purpose A"];
+const PURPOSE_B: [string, string] = ["p-b", "Purpose B"];
+const SOURCE_A: [string, string] = ["f-a", "Source A"];
+const SOURCE_B: [string, string] = ["f-b", "Source B"];
 
 describe("rollUpByPurpose", () => {
   it("gives each Purpose its Gross cost and a Funding split that adds back up to it", () => {
     const totals = rollUpByPurpose([
-      row(FOOD, WALLET, 100_000),
-      row(FOOD, GIFT, 30_000),
-      row(FOOD, WALLET, 20_000),
+      row(PURPOSE_A, SOURCE_A, 100_000),
+      row(PURPOSE_A, SOURCE_B, 30_000),
+      row(PURPOSE_A, SOURCE_A, 20_000),
     ]);
 
     expect(totals).toEqual([
       {
-        id: "p-food",
+        id: "p-a",
         name: "Purpose A",
         total: 150_000,
         byFundingSource: [
-          { id: "f-wallet", name: "Source A", total: 120_000 },
-          { id: "f-gift", name: "Source B", total: 30_000 },
+          { id: "f-a", name: "Source A", total: 120_000 },
+          { id: "f-b", name: "Source B", total: 30_000 },
         ],
       },
     ]);
   });
 
   it("keeps two Purposes apart when they share a name, because a Purpose is its id", () => {
-    const twin: [string, string] = ["p-twin", FOOD[1]];
+    const twin: [string, string] = ["p-a2", PURPOSE_A[1]];
 
     const totals = rollUpByPurpose([
-      row(FOOD, WALLET, 100_000),
-      row(twin, WALLET, 40_000),
+      row(PURPOSE_A, SOURCE_A, 100_000),
+      row(twin, SOURCE_A, 40_000),
     ]);
 
     expect(totals.map((t) => [t.id, t.total])).toEqual([
-      ["p-food", 100_000],
-      ["p-twin", 40_000],
+      ["p-a", 100_000],
+      ["p-a2", 40_000],
     ]);
+  });
+
+  it("merges rows of one Purpose even when they carry different names", () => {
+    const renamed: [string, string] = [PURPOSE_A[0], "Purpose A, renamed"];
+
+    const totals = rollUpByPurpose([
+      row(PURPOSE_A, SOURCE_A, 100_000),
+      row(renamed, SOURCE_A, 40_000),
+    ]);
+
+    expect(totals.map((t) => [t.id, t.total])).toEqual([["p-a", 140_000]]);
   });
 
   it("orders Purposes, and each Funding split, by largest first", () => {
     const totals = rollUpByPurpose([
-      row(FOOD, WALLET, 10_000),
-      row(RENT, GIFT, 5_000),
-      row(RENT, WALLET, 90_000),
-      row(FOOD, GIFT, 20_000),
+      row(PURPOSE_A, SOURCE_A, 10_000),
+      row(PURPOSE_B, SOURCE_B, 5_000),
+      row(PURPOSE_B, SOURCE_A, 90_000),
+      row(PURPOSE_A, SOURCE_B, 20_000),
     ]);
 
-    expect(totals.map((t) => t.id)).toEqual(["p-rent", "p-food"]);
-    expect(totals[0].byFundingSource.map((s) => s.id)).toEqual([
-      "f-wallet",
-      "f-gift",
-    ]);
-    expect(totals[1].byFundingSource.map((s) => s.id)).toEqual([
-      "f-gift",
-      "f-wallet",
-    ]);
+    expect(totals.map((t) => t.id)).toEqual(["p-b", "p-a"]);
+    expect(totals[0].byFundingSource.map((s) => s.id)).toEqual(["f-a", "f-b"]);
+    expect(totals[1].byFundingSource.map((s) => s.id)).toEqual(["f-b", "f-a"]);
   });
 
   it("returns nothing for no rows", () => {
