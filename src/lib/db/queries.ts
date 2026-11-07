@@ -9,6 +9,7 @@ import {
 } from "@/lib/db/schema";
 import { eq, and, gte, lt, desc, sql, inArray } from "drizzle-orm";
 import type { ShareLink } from "@/lib/db/schema";
+import type { TransactionSearch } from "@/lib/search-params";
 
 export async function getPurposes() {
   return db.select().from(purposes).orderBy(purposes.name);
@@ -67,17 +68,13 @@ function monthConditions(filters?: { fromMonth?: string; toMonth?: string }) {
 }
 
 /**
- * Named like the URL parameters on purpose (`purpose`, not `purposeId`), so a
- * caller hands a parsed `TransactionSearch` straight through. Renaming here
- * once beats translating at every caller, which is where a page and its Route
- * Handler used to each spell the mapping for themselves.
+ * Exactly the parsed URL search (`purpose`, not `purposeId`), so a page and
+ * its Route Handler hand `readTransactionSearch`'s result straight through.
+ * Typed *as* `TransactionSearch` rather than a look-alike: renaming a filter
+ * there is then a compile error here, not a field that silently stops
+ * matching. Both callers used to translate the names for themselves.
  */
-export type TransactionFilterInput = {
-  fromMonth?: string;
-  toMonth?: string;
-  purpose?: string;
-  fundingSource?: string;
-};
+export type TransactionFilterInput = TransactionSearch;
 
 /**
  * The transaction list, narrowed by any combination of the two dimensions.

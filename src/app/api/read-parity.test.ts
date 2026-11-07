@@ -142,6 +142,19 @@ describe("transactions: client URL → Route Handler", () => {
 
     expect(body).toHaveLength(Object.keys(TXN).length);
   });
+
+  it("treats a malformed month as no bound, as the page does, rather than a 400", async () => {
+    // Hand-written: the app's own client never sends a month its parser
+    // rejected. Lenient on purpose, matching `readTransactionSearch` on the page.
+    const { status, body } = await callRoute(
+      getTransactionsRoute,
+      "/api/transactions?fromMonth=2026-13&purpose=" + PURPOSE.y
+    );
+
+    expect(status).toBe(200);
+    // The bad bound is dropped, the good filter beside it still applies.
+    expect(ids(body)).toEqual([TXN.febYA.id]);
+  });
 });
 
 describe("overview: client URL → Route Handler", () => {
@@ -160,6 +173,16 @@ describe("overview: client URL → Route Handler", () => {
     const { body } = await callRoute(getOverviewRoute, url);
 
     expect(body.total).toBe(TXN.marXA.amount);
+  });
+
+  it("rejects a request with no month, which the app's client never sends", async () => {
+    expect((await callRoute(getOverviewRoute, "/api/overview")).status).toBe(
+      400
+    );
+    // Control: the same route, given a month, answers.
+    expect(
+      (await callRoute(getOverviewRoute, "/api/overview?month=2026-02")).status
+    ).toBe(200);
   });
 });
 
@@ -195,5 +218,41 @@ describe("public report: client URL → Route Handler", () => {
     const { status } = await callRoute(getPublicReportRoute, url);
 
     expect(status).toBe(404);
+  });
+
+  it("rejects a value that could never be a share code", async () => {
+    expect(
+      (
+        await callRoute(
+          getPublicReportRoute,
+          "/api/public-report?code=no%20way"
+        )
+      ).status
+    ).toBe(400);
+    expect(
+      (await callRoute(getPublicReportRoute, "/api/public-report")).status
+    ).toBe(400);
+    // Control: a well-formed code is let through.
+    expect(
+      (
+        await callRoute(
+          getPublicReportRoute,
+          `/api/public-report?code=${SHARE_CODE}`
+        )
+      ).status
+    ).toBe(200);
+  });
+
+  it("never lets a Purpose outside the link's scope narrow or widen it (ADR-0002)", async () => {
+    // Mục Z is real and has a row, but the link does not cover it. Asking for
+    // it falls back to the link's own scope instead of showing Z's row.
+    const url = await urlRequestedBy(
+      publicReportQueryOptions(SHARE_CODE, { purpose: PURPOSE.z })
+    );
+    const { status, body } = await callRoute(getPublicReportRoute, url);
+
+    expect(status).toBe(200);
+    expect(ids(body.transactions)).not.toContain(TXN.febZA.id);
+    expect(body.transactions).toHaveLength(Object.keys(TXN).length - 1);
   });
 });

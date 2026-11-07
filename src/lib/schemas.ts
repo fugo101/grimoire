@@ -29,7 +29,7 @@ export const monthSchema = z
   .regex(/^\d{4}-(0[1-9]|1[0-2])$/, msg("validation.monthFormat"));
 
 /**
- * The same pair, as a *route* reads it out of the URL.
+ * The `fromMonth` / `toMonth` pair, as a route reads it out of the URL.
  *
  * Lenient: a malformed month falls back to "no bound" instead of throwing into
  * the error component. URLs get hand-edited, truncated by chat clients, and

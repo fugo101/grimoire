@@ -55,10 +55,11 @@ export type PublicReportUrlSearch = z.infer<typeof publicReportSearchSchema>;
 /**
  * The inverse of the parsers: a parsed search back to query parameters. Used
  * twice over — for the hrefs a view navigates to, and for the request its
- * `queryFn` sends to the matching Route Handler — so the page, the href and
- * the API request all spell each name exactly once, here.
- * `search-params.test.ts` round-trips them through the parsers, and
- * `app/api/read-parity.test.ts` drives them through the real Route Handlers.
+ * `queryFn` sends to the matching Route Handler — so every name a read uses
+ * lives in this file, written once for reading and once for writing. Those
+ * two spellings are what the tests hold together: `search-params.test.ts`
+ * round-trips them through the parsers, and `app/api/read-parity.test.ts`
+ * drives them through the real Route Handlers.
  */
 export function toSearchParams(
   search: Partial<TransactionSearch>
