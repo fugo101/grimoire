@@ -20,6 +20,7 @@ import { useThemePreference } from "@/app/theme-context";
 import { useDelayedPending } from "@/hooks/use-delayed-pending";
 import { useMediaQuery } from "@/hooks/use-media-query";
 import { publicReportQueryOptions } from "@/lib/query-options";
+import { rollUpByPurpose } from "@/lib/roll-up";
 import {
   toSearchString,
   type PublicReportUrlSearch,
@@ -27,7 +28,6 @@ import {
 import type {
   DimensionOption,
   PurposeOption,
-  PurposeTotal,
   TransactionTableRow,
 } from "@/lib/types";
 import type { ThemePreference } from "@/lib/theme";
@@ -153,49 +153,18 @@ function ReportBody({
   const isWide = useMediaQuery("(min-width: 768px)");
 
   /**
-   * Spending per Purpose, with its funding split, rolled up in the browser.
+   * Rolled up in the browser — every row already carries both dimensions by
+   * id and by name, so no server work is needed — through the same
+   * `rollUpByPurpose` the admin's overview uses, so a reader and the admin
+   * never see the same rows roll up differently.
    *
-   * No server work is needed: every row already carries both dimensions by id
-   * and by name. Keyed by **id**, not by name — the old version bucketed on the
-   * name it had to dig out of a breadcrumb, so two distinct entries sharing a
-   * name silently merged into one bar. Nothing collided in practice, but the
-   * flat model makes same-named entries no less possible and this is the roll-up
-   * a reader trusts.
-   *
-   * The funding split is shown here on purpose: ADR-0002 decided a link's
+   * The Funding split is shown here on purpose: ADR-0002 decided a link's
    * readers may see how much of a cost was covered rather than self-paid.
    */
-  const byPurpose = useMemo(() => {
-    const buckets = new Map<string, PurposeTotal>();
-    for (const tx of transactions) {
-      let bucket = buckets.get(tx.purposeId);
-      if (!bucket) {
-        bucket = {
-          id: tx.purposeId,
-          name: tx.purposeName,
-          total: 0,
-          byFundingSource: [],
-        };
-        buckets.set(tx.purposeId, bucket);
-      }
-      bucket.total += tx.amount;
-
-      const share = bucket.byFundingSource.find(
-        (s) => s.id === tx.fundingSourceId
-      );
-      if (share) share.total += tx.amount;
-      else
-        bucket.byFundingSource.push({
-          id: tx.fundingSourceId,
-          name: tx.fundingSourceName,
-          total: tx.amount,
-        });
-    }
-    for (const bucket of buckets.values()) {
-      bucket.byFundingSource.sort((a, b) => b.total - a.total);
-    }
-    return [...buckets.values()].sort((a, b) => b.total - a.total);
-  }, [transactions]);
+  const byPurpose = useMemo(
+    () => rollUpByPurpose(transactions),
+    [transactions]
+  );
 
   return (
     <div

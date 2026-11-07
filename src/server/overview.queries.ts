@@ -1,6 +1,7 @@
 import "server-only";
 import { getTotalsByMonth, getTransactions } from "@/lib/db/queries";
 import { addMonths } from "@/lib/format";
+import { rollUpByPurpose } from "@/lib/roll-up";
 import type { OverviewData } from "@/lib/types";
 
 /** How many months the overview trend covers, including the selected one. */
@@ -20,10 +21,8 @@ const SERIES_MONTHS = 6;
  * the one the screen is asking. That climb is also why this needed the whole
  * category table; it now needs nothing but the rows.
  *
- * Each Purpose carries its Gross cost plus the split across Funding Sources
- * that produced it. The split is a partition of the same rows, so the shares
- * always sum back to the Gross cost — the identity is what makes it safe to
- * render one under the other.
+ * Each Purpose carries its Gross cost plus its Funding split, both from
+ * `rollUpByPurpose` — the same roll-up a Share Link's Public Report shows.
  */
 export async function getOverview(month: string): Promise<OverviewData> {
   const seriesStart = addMonths(month, -(SERIES_MONTHS - 1));
@@ -37,54 +36,12 @@ export async function getOverview(month: string): Promise<OverviewData> {
 
   const byMonth = new Map(totals.map((t) => [t.month, t.total]));
 
-  type Bucket = {
-    id: string;
-    name: string;
-    total: number;
-    byFundingSource: Map<string, { id: string; name: string; total: number }>;
-  };
-  const buckets = new Map<string, Bucket>();
-
-  for (const row of rows) {
-    let bucket = buckets.get(row.purposeId);
-    if (!bucket) {
-      bucket = {
-        id: row.purposeId,
-        name: row.purposeName,
-        total: 0,
-        byFundingSource: new Map(),
-      };
-      buckets.set(row.purposeId, bucket);
-    }
-    bucket.total += row.amount;
-
-    const share = bucket.byFundingSource.get(row.fundingSourceId);
-    if (share) {
-      share.total += row.amount;
-    } else {
-      bucket.byFundingSource.set(row.fundingSourceId, {
-        id: row.fundingSourceId,
-        name: row.fundingSourceName,
-        total: row.amount,
-      });
-    }
-  }
-
   return {
     month,
     total: byMonth.get(month) ?? 0,
     previousTotal: byMonth.get(addMonths(month, -1)) ?? 0,
     count: rows.length,
-    byPurpose: [...buckets.values()]
-      .sort((a, b) => b.total - a.total)
-      .map((bucket) => ({
-        id: bucket.id,
-        name: bucket.name,
-        total: bucket.total,
-        byFundingSource: [...bucket.byFundingSource.values()].sort(
-          (a, b) => b.total - a.total
-        ),
-      })),
+    byPurpose: rollUpByPurpose(rows),
     monthlySeries: Array.from({ length: SERIES_MONTHS }, (_, i) => {
       const m = addMonths(seriesStart, i);
       return { month: m, total: byMonth.get(m) ?? 0 };
