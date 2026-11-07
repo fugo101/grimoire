@@ -29,17 +29,6 @@ export const monthSchema = z
   .regex(/^\d{4}-(0[1-9]|1[0-2])$/, msg("validation.monthFormat"));
 
 /**
- * The `fromMonth` / `toMonth` pair, as a server function accepts it.
- *
- * Strict: a malformed month is rejected outright. Server functions are RPC
- * endpoints anyone can call directly, and there is no user to be gentle with.
- */
-export const monthRangeSchema = z.object({
-  fromMonth: monthSchema.optional(),
-  toMonth: monthSchema.optional(),
-});
-
-/**
  * The same pair, as a *route* reads it out of the URL.
  *
  * Lenient: a malformed month falls back to "no bound" instead of throwing into
@@ -48,8 +37,11 @@ export const monthRangeSchema = z.object({
  * `?toMonth=` with a full-page error is worse than answering with an unfiltered
  * report, and `/p/[code]` is read by people who cannot fix the link themselves.
  *
+ * The Route Handlers read their URLs through the same parsers, so a refetch
+ * filters exactly as the page's first render did.
+ *
  * This is not a hole: `.catch` produces `undefined`, never the malformed
- * string, so nothing invalid reaches monthRangeSchema or the query layer.
+ * string, so nothing invalid reaches the query layer.
  */
 export const monthRangeSearchSchema = z.object({
   fromMonth: monthSchema.optional().catch(undefined),
@@ -147,45 +139,3 @@ export const loginSchema = z.object({
 });
 
 export type LoginInput = z.infer<typeof loginSchema>;
-
-/**
- * The month range plus the two dimensions, as the transactions server function
- * accepts it. Moved here (rather than left inline in
- * queries.functions.ts, where it originated) ahead of the Next.js migration:
- * a `"use server"` file may only export async functions, so this value export
- * would be a hard compile error there.
- */
-export const transactionFilterSchema = monthRangeSchema.extend({
-  purpose: z.string().optional(),
-  fundingSource: z.string().optional(),
-});
-
-export type TransactionFilters = z.infer<typeof transactionFilterSchema>;
-
-/** How many months the overview trend covers, including the selected one. */
-export const overviewSchema = z.object({
-  month: monthSchema,
-});
-
-/**
- * A public share-link code, as accepted on read via `/p/[code]`. Moved here for
- * the same reason as `transactionFilterSchema` above.
- */
-export const publicReportSchema = monthRangeSchema.extend({
-  // SHARE_CODE_SHAPE, not SHARE_CODE_PATTERN: this rejects values that could
-  // never be a code, without imposing the 8-character write floor on links that
-  // were handed out before that floor existed.
-  code: z.string().regex(SHARE_CODE_SHAPE),
-  // Both are *view* filters, and neither is scope. A link's scope stays
-  // one-dimensional (ADR-0002): `purpose` is intersected with it, and
-  // `fundingSource` only ever narrows rows the scope already allows — readers
-  // were always shown every Funding Source of their Purposes, so letting them
-  // look at one pot at a time reveals nothing new. See the ADR's amendment.
-  purpose: z.string().optional(),
-  fundingSource: z.string().optional(),
-});
-
-export type PublicReportSearch = Omit<
-  z.infer<typeof publicReportSchema>,
-  "code"
->;

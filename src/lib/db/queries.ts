@@ -66,11 +66,17 @@ function monthConditions(filters?: { fromMonth?: string; toMonth?: string }) {
   return conditions;
 }
 
+/**
+ * Named like the URL parameters on purpose (`purpose`, not `purposeId`), so a
+ * caller hands a parsed `TransactionSearch` straight through. Renaming here
+ * once beats translating at every caller, which is where a page and its Route
+ * Handler used to each spell the mapping for themselves.
+ */
 export type TransactionFilterInput = {
   fromMonth?: string;
   toMonth?: string;
-  purposeId?: string;
-  fundingSourceId?: string;
+  purpose?: string;
+  fundingSource?: string;
 };
 
 /**
@@ -86,11 +92,11 @@ export type TransactionFilterInput = {
 export async function getTransactions(filters?: TransactionFilterInput) {
   const conditions = monthConditions(filters);
 
-  if (filters?.purposeId) {
-    conditions.push(eq(transactions.purposeId, filters.purposeId));
+  if (filters?.purpose) {
+    conditions.push(eq(transactions.purposeId, filters.purpose));
   }
-  if (filters?.fundingSourceId) {
-    conditions.push(eq(transactions.fundingSourceId, filters.fundingSourceId));
+  if (filters?.fundingSource) {
+    conditions.push(eq(transactions.fundingSourceId, filters.fundingSource));
   }
 
   return selectTransactions()

@@ -132,16 +132,7 @@ describe("transactions: client URL → Route Handler", () => {
 
       expect(status).toBe(200);
       expect(ids(body)).toEqual([...dashboard].sort());
-      expect(body).toEqual(
-        overTheWire(
-          await getTransactions({
-            fromMonth: search.fromMonth,
-            toMonth: search.toMonth,
-            purposeId: search.purpose,
-            fundingSourceId: search.fundingSource,
-          })
-        )
-      );
+      expect(body).toEqual(overTheWire(await getTransactions(search)));
     }
   );
 
