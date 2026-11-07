@@ -28,6 +28,10 @@ _Avoid_: Parent category, danh mục cha, group
 The total spent on a Purpose, summed across every Funding Source. This is the default figure shown for a Purpose.
 _Avoid_: Total, net
 
+**Funding split**:
+A Gross cost broken down by the Funding Sources that paid for it. The parts always add back up to exactly the Gross cost: they are slices of one figure, never separately computed figures that could disagree with it. Self-paid share and Covered share are readings of a Funding split.
+_Avoid_: Breakdown, allocation
+
 **Self-paid share**:
 The part of a Gross cost drawn from Funding Sources the admin paid out of their own pocket.
 _Avoid_: Net spend, real cost, out-of-pocket
