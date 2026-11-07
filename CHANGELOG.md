@@ -1,5 +1,13 @@
 # Changelog
 
+## [2.6.1](https://github.com/fugo101/grimoire/compare/v2.6.0...v2.6.1) (2026-11-07)
+
+
+### ♻️ Refactors
+
+* name each read's URL parameters once, for page and API alike ([#166](https://github.com/fugo101/grimoire/issues/166)) ([76bb561](https://github.com/fugo101/grimoire/commit/76bb561bb13ad16957cee705f6b144b1ea9bf5f6))
+* roll up Gross cost by Purpose in one module ([#164](https://github.com/fugo101/grimoire/issues/164)) ([08bbc58](https://github.com/fugo101/grimoire/commit/08bbc58bc6b56a711a4d029d8ec6acbcca0c807e))
+
 ## [2.6.0](https://github.com/fugo101/grimoire/compare/v2.5.0...v2.6.0) (2026-10-09)
 
 
