@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  fromURLSearchParams,
   parseOverviewSearch,
   parsePublicReportSearch,
   parseTransactionSearch,
@@ -178,5 +179,15 @@ describe("readXSearch: the routes and the schemas cannot drift apart", () => {
     // the first. Narrowing the same way keeps one URL meaning one query key.
     expect(readTransactionSearch({ purpose: ["a", "b"] }).purpose).toBe("a");
     expect(readPublicReportSearch({ purpose: ["a", "b"] }).purpose).toBe("a");
+  });
+
+  it("reads a Route Handler's repeated parameter as the page reads it", () => {
+    // The route side of the same rule: `Object.fromEntries` would keep the
+    // *last* value, so the API and the page would read one URL two ways.
+    const params = new URLSearchParams("purpose=a&purpose=b&fromMonth=2026-02");
+    expect(readTransactionSearch(fromURLSearchParams(params))).toEqual(
+      readTransactionSearch({ purpose: ["a", "b"], fromMonth: "2026-02" })
+    );
+    expect(fromURLSearchParams(params).purpose).toBe("a");
   });
 });

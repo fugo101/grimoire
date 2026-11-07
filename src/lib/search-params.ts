@@ -53,13 +53,17 @@ const publicReportSearchSchema = transactionSearchSchema;
 export type PublicReportUrlSearch = z.infer<typeof publicReportSearchSchema>;
 
 /**
- * The inverse of the parsers: a parsed search back to a query string, for
- * hrefs. Both client views used to spell the four parameter names again in
- * their own `buildHref`, which is exactly the drift CLAUDE.md's "routes are
- * unchecked strings" note warns about — here they are spelled once more, and
- * `search-params.test.ts` round-trips them through the parsers.
+ * The inverse of the parsers: a parsed search back to query parameters. Used
+ * twice over — for the hrefs a view navigates to, and for the request its
+ * `queryFn` sends to the matching Route Handler — so every name a read uses
+ * lives in this file, written once for reading and once for writing. Those
+ * two spellings are what the tests hold together: `search-params.test.ts`
+ * round-trips them through the parsers, and `app/api/read-parity.test.ts`
+ * drives them through the real Route Handlers.
  */
-export function toSearchString(search: Partial<TransactionSearch>): string {
+export function toSearchParams(
+  search: Partial<TransactionSearch>
+): URLSearchParams {
   const params = new URLSearchParams();
   for (const key of [
     "fromMonth",
@@ -70,7 +74,33 @@ export function toSearchString(search: Partial<TransactionSearch>): string {
     const value = search[key];
     if (value) params.set(key, value);
   }
-  return params.toString();
+  return params;
+}
+
+export function toSearchString(search: Partial<TransactionSearch>): string {
+  return toSearchParams(search).toString();
+}
+
+export function toOverviewSearchParams(
+  search: OverviewSearch
+): URLSearchParams {
+  const params = new URLSearchParams();
+  if (search.month) params.set("month", search.month);
+  return params;
+}
+
+/**
+ * The Public Report's API request: the view filters, plus the share code. On
+ * the page the code is a path segment (`/p/[code]`); on the way to
+ * `/api/public-report` it travels as a parameter, named here and nowhere else.
+ */
+export function toPublicReportRequestParams(
+  code: string,
+  search: Partial<PublicReportUrlSearch>
+): URLSearchParams {
+  const params = toSearchParams(search);
+  params.set("code", code);
+  return params;
 }
 
 export function parsePublicReportSearch(
@@ -95,6 +125,19 @@ export function pickSearchParam(
 
 /** Next's `searchParams` prop, before any narrowing. */
 export type RawSearchParams = Record<string, string | string[] | undefined>;
+
+/**
+ * A Route Handler's `URLSearchParams` in the shape the `read*` parsers below
+ * take, so a route parses its request with the same function its page uses.
+ * Each key keeps its *first* value, as `pickSearchParam` does —
+ * `Object.fromEntries` would keep the last, and a repeated key would then
+ * read differently on the two sides of the same read.
+ */
+export function fromURLSearchParams(params: URLSearchParams): RawSearchParams {
+  const raw: RawSearchParams = {};
+  for (const key of params.keys()) raw[key] ??= params.get(key) ?? undefined;
+  return raw;
+}
 
 /**
  * The parsers a `page.tsx` actually calls: hand them Next's raw
@@ -135,4 +178,15 @@ export function readPublicReportSearch(
     purpose: pickSearchParam(raw.purpose),
     fundingSource: pickSearchParam(raw.fundingSource),
   });
+}
+
+/** `/api/public-report`'s request: the share code plus the page's own search. */
+export function readPublicReportRequest(raw: RawSearchParams): {
+  code: string | undefined;
+  search: PublicReportUrlSearch;
+} {
+  return {
+    code: pickSearchParam(raw.code),
+    search: readPublicReportSearch(raw),
+  };
 }

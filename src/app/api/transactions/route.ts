@@ -1,28 +1,22 @@
 import { guardApiRequest } from "@/server/http-auth";
 import { getTransactions } from "@/lib/db/queries";
-import { transactionFilterSchema } from "@/lib/schemas";
+import {
+  fromURLSearchParams,
+  readTransactionSearch,
+} from "@/lib/search-params";
 
+/**
+ * Reads its URL with the same parser `/dashboard/transactions/page.tsx` uses,
+ * so the client's refetch and the page's SSR prefetch cannot disagree on what
+ * a parameter is called — `app/api/read-parity.test.ts` holds them to that.
+ * Lenient like the page: a malformed month means "no bound", not a 400.
+ */
 export async function GET(request: Request) {
   const denied = await guardApiRequest(request);
   if (denied) return denied;
 
-  const { searchParams } = new URL(request.url);
-  const parsed = transactionFilterSchema.safeParse({
-    fromMonth: searchParams.get("fromMonth") ?? undefined,
-    toMonth: searchParams.get("toMonth") ?? undefined,
-    purpose: searchParams.get("purpose") ?? undefined,
-    fundingSource: searchParams.get("fundingSource") ?? undefined,
-  });
-  if (!parsed.success) {
-    return Response.json({ error: "invalid_params" }, { status: 400 });
-  }
-
-  return Response.json(
-    await getTransactions({
-      fromMonth: parsed.data.fromMonth,
-      toMonth: parsed.data.toMonth,
-      purposeId: parsed.data.purpose,
-      fundingSourceId: parsed.data.fundingSource,
-    })
+  const search = readTransactionSearch(
+    fromURLSearchParams(new URL(request.url).searchParams)
   );
+  return Response.json(await getTransactions(search));
 }

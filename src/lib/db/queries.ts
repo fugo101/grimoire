@@ -9,6 +9,7 @@ import {
 } from "@/lib/db/schema";
 import { eq, and, gte, lt, desc, sql, inArray } from "drizzle-orm";
 import type { ShareLink } from "@/lib/db/schema";
+import type { TransactionSearch } from "@/lib/search-params";
 
 export async function getPurposes() {
   return db.select().from(purposes).orderBy(purposes.name);
@@ -66,12 +67,14 @@ function monthConditions(filters?: { fromMonth?: string; toMonth?: string }) {
   return conditions;
 }
 
-export type TransactionFilterInput = {
-  fromMonth?: string;
-  toMonth?: string;
-  purposeId?: string;
-  fundingSourceId?: string;
-};
+/**
+ * Exactly the parsed URL search (`purpose`, not `purposeId`), so a page and
+ * its Route Handler hand `readTransactionSearch`'s result straight through.
+ * Typed *as* `TransactionSearch` rather than a look-alike: renaming a filter
+ * there is then a compile error here, not a field that silently stops
+ * matching. Both callers used to translate the names for themselves.
+ */
+export type TransactionFilterInput = TransactionSearch;
 
 /**
  * The transaction list, narrowed by any combination of the two dimensions.
@@ -86,11 +89,11 @@ export type TransactionFilterInput = {
 export async function getTransactions(filters?: TransactionFilterInput) {
   const conditions = monthConditions(filters);
 
-  if (filters?.purposeId) {
-    conditions.push(eq(transactions.purposeId, filters.purposeId));
+  if (filters?.purpose) {
+    conditions.push(eq(transactions.purposeId, filters.purpose));
   }
-  if (filters?.fundingSourceId) {
-    conditions.push(eq(transactions.fundingSourceId, filters.fundingSourceId));
+  if (filters?.fundingSource) {
+    conditions.push(eq(transactions.fundingSourceId, filters.fundingSource));
   }
 
   return selectTransactions()

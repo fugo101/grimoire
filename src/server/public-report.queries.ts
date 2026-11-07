@@ -7,7 +7,7 @@ import {
   getPurposes,
 } from "@/lib/db/queries";
 import { addMonths } from "@/lib/format";
-import type { PublicReportSearch } from "@/lib/schemas";
+import type { PublicReportUrlSearch } from "@/lib/search-params";
 import type { PublicReport } from "@/lib/types";
 
 /**
@@ -25,7 +25,7 @@ import type { PublicReport } from "@/lib/types";
  * ancestors, so all of that is gone rather than ported.
  */
 export async function getPublicReport(
-  input: PublicReportSearch & { code: string }
+  input: PublicReportUrlSearch & { code: string }
 ): Promise<PublicReport | null> {
   const result = await getShareLinkByCode(input.code);
   // Returning null rather than throwing notFound(): the caller (the Route

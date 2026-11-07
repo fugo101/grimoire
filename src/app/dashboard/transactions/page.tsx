@@ -27,12 +27,7 @@ export default async function TransactionsPage({
   const [purposes, fundingSources, transactions] = await Promise.all([
     getPurposes(),
     getFundingSources(),
-    getTransactions({
-      fromMonth: search.fromMonth,
-      toMonth: search.toMonth,
-      purposeId: search.purpose,
-      fundingSourceId: search.fundingSource,
-    }),
+    getTransactions(search),
   ]);
   queryClient.setQueryData(purposesQueryOptions().queryKey, purposes);
   queryClient.setQueryData(

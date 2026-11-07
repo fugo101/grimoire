@@ -33,7 +33,7 @@ describe("getTransactions", () => {
     // The question the category tree could not answer at all: "Mục X" was two
     // leaves in two branches, and the filter took one id. One column
     // comparison now covers both pots.
-    const ids = await idsFor({ purposeId: PURPOSE.x });
+    const ids = await idsFor({ purpose: PURPOSE.x });
 
     expect(ids).toEqual([
       TXN.marXA.id,
@@ -42,7 +42,7 @@ describe("getTransactions", () => {
       TXN.janXA.id,
     ]);
     // Both pots are represented, and nothing from another Purpose is.
-    const rows = await getTransactions({ purposeId: PURPOSE.x });
+    const rows = await getTransactions({ purpose: PURPOSE.x });
     expect(new Set(rows.map((r) => r.fundingSourceId))).toEqual(
       new Set([FUNDING.a, FUNDING.b])
     );
@@ -50,38 +50,36 @@ describe("getTransactions", () => {
   });
 
   it("selects one Funding Source across every Purpose", async () => {
-    const ids = await idsFor({ fundingSourceId: FUNDING.b });
+    const ids = await idsFor({ fundingSource: FUNDING.b });
 
     expect(ids).toEqual([TXN.febXB.id]);
     // The control: the other pot is not empty, so the single row above is a
     // narrowing rather than a filter that matches almost nothing.
-    expect(await idsFor({ fundingSourceId: FUNDING.a })).toHaveLength(5);
+    expect(await idsFor({ fundingSource: FUNDING.a })).toHaveLength(5);
   });
 
   it("intersects the two dimensions rather than choosing between them", async () => {
     expect(
-      await idsFor({ purposeId: PURPOSE.x, fundingSourceId: FUNDING.b })
+      await idsFor({ purpose: PURPOSE.x, fundingSource: FUNDING.b })
     ).toEqual([TXN.febXB.id]);
 
     expect(
-      await idsFor({ purposeId: PURPOSE.x, fundingSourceId: FUNDING.a })
+      await idsFor({ purpose: PURPOSE.x, fundingSource: FUNDING.a })
     ).toEqual([TXN.marXA.id, TXN.febXA.id, TXN.janXA.id]);
 
     // A combination nothing satisfies returns nothing — paired with the two
     // above, which prove each half is individually non-empty.
     expect(
-      await idsFor({ purposeId: PURPOSE.y, fundingSourceId: FUNDING.b })
+      await idsFor({ purpose: PURPOSE.y, fundingSource: FUNDING.b })
     ).toEqual([]);
   });
 
   it("returns nothing for an id that does not exist, on either dimension", async () => {
-    expect(await idsFor({ purposeId: "no-such-purpose" })).toEqual([]);
-    expect(await idsFor({ fundingSourceId: "no-such-pot" })).toEqual([]);
+    expect(await idsFor({ purpose: "no-such-purpose" })).toEqual([]);
+    expect(await idsFor({ fundingSource: "no-such-pot" })).toEqual([]);
     // Control: a real id on each dimension does return rows.
-    expect(await idsFor({ purposeId: PURPOSE.z })).toEqual([TXN.febZA.id]);
-    expect(await idsFor({ fundingSourceId: FUNDING.b })).toEqual([
-      TXN.febXB.id,
-    ]);
+    expect(await idsFor({ purpose: PURPOSE.z })).toEqual([TXN.febZA.id]);
+    expect(await idsFor({ fundingSource: FUNDING.b })).toEqual([TXN.febXB.id]);
   });
 
   it("bounds an inclusive month range from below", async () => {
@@ -115,8 +113,8 @@ describe("getTransactions", () => {
 
   it("combines a month range with both dimensions at once", async () => {
     const ids = await idsFor({
-      purposeId: PURPOSE.x,
-      fundingSourceId: FUNDING.a,
+      purpose: PURPOSE.x,
+      fundingSource: FUNDING.a,
       fromMonth: "2026-02",
       toMonth: "2026-02",
     });
@@ -130,8 +128,8 @@ describe("getTransactions", () => {
 
   it("joins both dimensions' names onto each row", async () => {
     const rows = await getTransactions({
-      purposeId: PURPOSE.x,
-      fundingSourceId: FUNDING.b,
+      purpose: PURPOSE.x,
+      fundingSource: FUNDING.b,
     });
 
     expect(rows).toHaveLength(1);

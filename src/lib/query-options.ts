@@ -1,6 +1,12 @@
 import { queryOptions } from "@tanstack/react-query";
 import { fetchJson } from "@/lib/api";
-import type { TransactionFilters, PublicReportSearch } from "@/lib/schemas";
+import {
+  toOverviewSearchParams,
+  toPublicReportRequestParams,
+  toSearchParams,
+  type PublicReportUrlSearch,
+  type TransactionSearch,
+} from "@/lib/search-params";
 import type { FundingSource, Purpose } from "@/lib/db/schema";
 import type { ShareLinkWithPurposes } from "@/lib/db/queries";
 import type { OverviewData, PublicReport, TransactionRow } from "@/lib/types";
@@ -38,16 +44,11 @@ export const fundingSourcesQueryOptions = () =>
     queryFn: () => fetchJson<FundingSource[]>("/api/funding-sources"),
   });
 
-export const transactionsQueryOptions = (filters: TransactionFilters) =>
+export const transactionsQueryOptions = (search: TransactionSearch) =>
   queryOptions({
-    queryKey: ["transactions", filters] as const,
+    queryKey: ["transactions", search] as const,
     queryFn: () =>
-      fetchJson<TransactionRow[]>("/api/transactions", {
-        fromMonth: filters.fromMonth,
-        toMonth: filters.toMonth,
-        purpose: filters.purpose,
-        fundingSource: filters.fundingSource,
-      }),
+      fetchJson<TransactionRow[]>("/api/transactions", toSearchParams(search)),
   });
 
 /**
@@ -58,7 +59,11 @@ export const transactionsQueryOptions = (filters: TransactionFilters) =>
 export const overviewQueryOptions = (month: string) =>
   queryOptions({
     queryKey: ["overview", month] as const,
-    queryFn: () => fetchJson<OverviewData>("/api/overview", { month }),
+    queryFn: () =>
+      fetchJson<OverviewData>(
+        "/api/overview",
+        toOverviewSearchParams({ month })
+      ),
   });
 
 export const shareLinksQueryOptions = () =>
@@ -69,16 +74,13 @@ export const shareLinksQueryOptions = () =>
 
 export const publicReportQueryOptions = (
   code: string,
-  search: PublicReportSearch
+  search: PublicReportUrlSearch
 ) =>
   queryOptions({
     queryKey: ["publicReport", code, search] as const,
     queryFn: () =>
-      fetchJson<PublicReport | null>("/api/public-report", {
-        code,
-        fromMonth: search.fromMonth,
-        toMonth: search.toMonth,
-        purpose: search.purpose,
-        fundingSource: search.fundingSource,
-      }),
+      fetchJson<PublicReport | null>(
+        "/api/public-report",
+        toPublicReportRequestParams(code, search)
+      ),
   });
