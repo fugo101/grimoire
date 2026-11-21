@@ -14,7 +14,12 @@ updates:
     schedule:
       interval: "weekly"
     commit-message:
-      prefix: "chore(deps)"
+      prefix: "deps"
+      prefix-development: "chore(deps)"
     groups:
-      npm:
+      npm-production:
+        dependency-type: "production"
+        patterns: ["*"]
+      npm-development:
+        dependency-type: "development"
         patterns: ["*"]
